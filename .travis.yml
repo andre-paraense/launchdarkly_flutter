@@ -6,6 +6,6 @@ before_script:
  - export TZ=Europe/London
  - chmod +x .travis/before_script.sh
  - chmod +x .travis/test.sh
- - .travis/before_script.sh
+ - source .travis/before_script.sh
 script:
  - .travis/test.sh
