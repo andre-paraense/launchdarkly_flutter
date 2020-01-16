@@ -11,11 +11,9 @@ jobs:
       with:
         java-version: '12.x'
     - uses: subosito/flutter-action@v1.1.1
-    - run: flutter pub get
-    - run: flutter build aot
-    # Analyze our Dart code
-    - run: flutter analyze
-    # Run our tests
+    - run: flutter packages get
+    - run: flutter analyze --no-pub
+    - run: flutter build -t lib/launchdarkly_flutter.dart
     - run: flutter test --coverage
     - uses: codecov/codecov-action@v1.0.2
       with:
