@@ -1,3 +1,12 @@
 ## 0.0.1
 
-* TODO: Describe initial release.
+* Initial release - CI/CD testing.
+
+## 0.0.2
+
+* Slack integration
+
+
+## 0.0.3
+
+* TODO - describe release
