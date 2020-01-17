@@ -18,6 +18,8 @@ jobs:
         with:
           token: ${{secrets.CODECOV_TOKEN}}
           file: ./coverage/lcov.info
-      - uses: actions/slack-notifier-action@v1
+      - uses: pioug/le-slack-message@v1.0.0
         with:
-          webhook_url: ${{secrets.SLACK_WEBHOOK_URL}}
+          ACTION_NAME: CI - Build and Test
+          JOB: ${{toJson(job)}}
+          SLACK_WEBHOOK_URL: ${{secrets.SLACK_WEBHOOK_URL}}
