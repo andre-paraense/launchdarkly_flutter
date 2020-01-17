@@ -11,8 +11,6 @@ jobs:
       - uses: actions/checkout@v1
       - uses: subosito/flutter-action@v1.1.1
       - run: flutter pub publish --dry-run
-      - uses: pioug/le-slack-message@v1.0.0
+      - uses: actions/slack-notifier-action@v1.0.2
         with:
-          ACTION_NAME: CD - Publish
-          JOB: ${{toJson(job)}}
-          SLACK_WEBHOOK_URL: ${{secrets.SLACK_WEBHOOK_URL}}
+          webhook_url: ${{secrets.SLACK_WEBHOOK_URL}}
