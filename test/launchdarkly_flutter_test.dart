@@ -9,7 +9,12 @@ void main() {
 
   setUp(() {
     channel.setMockMethodCallHandler((MethodCall methodCall) async {
-      return '42';
+      if(methodCall.method == 'boolVariation'){
+        return true;
+      }else if(methodCall.method == 'boolVariationFallback'){
+        return false;
+      }
+      return true;
     });
   });
 
@@ -17,7 +22,10 @@ void main() {
     channel.setMockMethodCallHandler(null);
   });
 
-  test('getPlatformVersion', () async {
-    expect(await LaunchdarklyFlutter.platformVersion, '42');
+  LaunchdarklyFlutter launchdarklyFlutter = LaunchdarklyFlutter();
+
+  test('boolVariation', () async {
+    expect(await launchdarklyFlutter.boolVariation('ipPermitted', true), false);
+    expect(await launchdarklyFlutter.boolVariation('ipPermitted', null), true);
   });
 }
