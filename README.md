@@ -4,6 +4,8 @@
 
 This is an unofficial LaunchDarkly SDK for Flutter.
 
+This is a work in progress and still has many features that have not been address. You are welcome to [contribute](CONTRIBUTING.md).
+
 ## Supported versions
 
 This SDK is compatible with Flutter 1.12 and Xcode 11 and is tested in Android 28 and iOS 13. Earlier versions of this SDK are compatible with prior versions of Flutter, Android, and iOS.
@@ -11,6 +13,16 @@ This SDK is compatible with Flutter 1.12 and Xcode 11 and is tested in Android 2
 ## Getting started
 
 Check LaunchDarkly's [documentation](https://docs.launchdarkly.com) for in-depth instructions on configuring and using LaunchDarkly.
+
+TODO - explain how to add the plugin to pubspec. Also, instruct in how to use API keys.
+
+## Example
+
+TODO - show an example with code snippet and refer to the example app
+
+## Not supported yet
+
+Check LaunchDarkly's [documentation](https://docs.launchdarkly.com) for more information on the features not yet supported. We are slowly and iteratively adding more features as we use them in our own projects. You are welcome to [contribute](CONTRIBUTING.md).
 
 ## Contributing
 
