@@ -14,7 +14,10 @@ class LaunchdarklyFlutter {
   }
 
   Future<String> stringVariation(String flagKey, String fallback) async {
-    return await _channel.invokeMethod('stringVariation', flagKey);
+    if(fallback == null){
+      return await _channel.invokeMethod('stringVariation', flagKey);
+    }else{
+      return await _channel.invokeMethod('stringVariationFallback', <String, dynamic>{'flagKey': flagKey, 'fallback': fallback});
+    }
   }
-
 }

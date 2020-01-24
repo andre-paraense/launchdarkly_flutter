@@ -9,12 +9,22 @@ void main() {
 
   setUp(() {
     channel.setMockMethodCallHandler((MethodCall methodCall) async {
+
       if(methodCall.method == 'boolVariation'){
         return true;
       }else if(methodCall.method == 'boolVariationFallback'){
-        return false;
+        Map<dynamic,dynamic> args = methodCall.arguments;
+        return args['fallback'];
       }
-      return true;
+
+      if(methodCall.method == 'stringVariation'){
+        return 'something';
+      }else if(methodCall.method == 'stringVariationFallback'){
+        Map<dynamic,dynamic> args = methodCall.arguments;
+        return args['fallback'];
+      }
+
+      return null;
     });
   });
 
@@ -24,8 +34,23 @@ void main() {
 
   LaunchdarklyFlutter launchdarklyFlutter = LaunchdarklyFlutter();
 
-  test('boolVariation', () async {
-    expect(await launchdarklyFlutter.boolVariation('ipPermitted', true), false);
+  test('boolVariation with no fallback', () async {
     expect(await launchdarklyFlutter.boolVariation('ipPermitted', null), true);
+  });
+
+  test('boolVariation with fallback true', () async {
+    expect(await launchdarklyFlutter.boolVariation('ipPermitted', true), true);
+  });
+
+  test('boolVariation with fallback false', () async {
+    expect(await launchdarklyFlutter.boolVariation('ipPermitted', false), false);
+  });
+
+  test('stringVariation with no fallback', () async {
+    expect(await launchdarklyFlutter.stringVariation('ipPermitted', null), 'something');
+  });
+
+  test('stringVariation with fallback', () async {
+    expect(await launchdarklyFlutter.stringVariation('ipPermitted', 'nothing'), 'nothing');
   });
 }
