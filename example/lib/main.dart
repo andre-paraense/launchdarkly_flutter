@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
-
 import 'package:flutter/services.dart';
 import 'package:launchdarkly_flutter/launchdarkly_flutter.dart';
 
@@ -12,23 +11,58 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  bool _shouldShowButton = false;
+  bool _shouldShow = false;
+  LaunchdarklyFlutter launchdarklyFlutter;
 
   @override
-  void initState() {
+  void initState(){
     super.initState();
     initPlatformState();
   }
 
   // Platform messages are asynchronous, so we initialize in an async method.
   Future<void> initPlatformState() async {
-    bool shouldShowButton;
     // Platform messages may fail, so we use a try/catch PlatformException.
 
-    LaunchdarklyFlutter launchdarklyFlutter = LaunchdarklyFlutter();
+    launchdarklyFlutter = LaunchdarklyFlutter();
 
     try {
-      shouldShowButton = await launchdarklyFlutter.boolVariation('ipPermitted', true);
+      await launchdarklyFlutter.init('YOUR_MOBILE_KEY', 'USER_ID', 'USER_EMAIL');
+    } on PlatformException {}
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: Scaffold(
+        appBar: AppBar(
+          title: const Text('LaunchDarkly Plugin'),
+        ),
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              Text('Should show: $_shouldShow\n'),
+              RaisedButton(
+                onPressed: () async {
+                  verifyFlag();
+                },
+                child: Text(
+                  'Verify'
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  void verifyFlag() async {
+    bool shouldShowButton;
+    // Platform messages may fail, so we use a try/catch PlatformException.
+    try {
+      shouldShowButton = await launchdarklyFlutter.boolVariation('FLAG_KEY', false);
     } on PlatformException {
       shouldShowButton = false;
     }
@@ -39,21 +73,7 @@ class _MyAppState extends State<MyApp> {
     if (!mounted) return;
 
     setState(() {
-      _shouldShowButton = shouldShowButton;
+      _shouldShow = shouldShowButton;
     });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      home: Scaffold(
-        appBar: AppBar(
-          title: const Text('Plugin example app'),
-        ),
-        body: Center(
-          child: Text('Running on: $_shouldShowButton\n'),
-        ),
-      ),
-    );
   }
 }

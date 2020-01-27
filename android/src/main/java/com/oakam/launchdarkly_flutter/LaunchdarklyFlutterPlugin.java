@@ -1,7 +1,19 @@
 package com.oakam.launchdarkly_flutter;
 
+import android.app.Activity;
+
 import androidx.annotation.NonNull;
+
+import com.launchdarkly.android.LDClient;
+import com.launchdarkly.android.LDConfig;
+import com.launchdarkly.android.LDUser;
+
+import java.io.IOException;
+
 import io.flutter.embedding.engine.plugins.FlutterPlugin;
+import io.flutter.embedding.engine.plugins.activity.ActivityAware;
+import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding;
+import io.flutter.plugin.common.BinaryMessenger;
 import io.flutter.plugin.common.MethodCall;
 import io.flutter.plugin.common.MethodChannel;
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler;
@@ -9,37 +21,115 @@ import io.flutter.plugin.common.MethodChannel.Result;
 import io.flutter.plugin.common.PluginRegistry.Registrar;
 
 /** LaunchdarklyFlutterPlugin */
-public class LaunchdarklyFlutterPlugin implements FlutterPlugin, MethodCallHandler {
-  @Override
-  public void onAttachedToEngine(@NonNull FlutterPluginBinding flutterPluginBinding) {
-    final MethodChannel channel = new MethodChannel(flutterPluginBinding.getFlutterEngine().getDartExecutor(), "launchdarkly_flutter");
-    channel.setMethodCallHandler(new LaunchdarklyFlutterPlugin());
+public class LaunchdarklyFlutterPlugin implements FlutterPlugin, ActivityAware, MethodCallHandler {
+
+  private MethodChannel channel;
+  private Activity activity;
+  private LDClient ldClient;
+
+  public LaunchdarklyFlutterPlugin() {}
+
+  public LaunchdarklyFlutterPlugin(Activity activity){
+    this.activity = activity;
   }
 
-  // This static function is optional and equivalent to onAttachedToEngine. It supports the old
-  // pre-Flutter-1.12 Android projects. You are encouraged to continue supporting
-  // plugin registration via this function while apps migrate to use the new Android APIs
-  // post-flutter-1.12 via https://flutter.dev/go/android-project-migration.
-  //
-  // It is encouraged to share logic between onAttachedToEngine and registerWith to keep
-  // them functionally equivalent. Only one of onAttachedToEngine or registerWith will be called
-  // depending on the user's project. onAttachedToEngine or registerWith must both be defined
-  // in the same class.
   public static void registerWith(Registrar registrar) {
-    final MethodChannel channel = new MethodChannel(registrar.messenger(), "launchdarkly_flutter");
-    channel.setMethodCallHandler(new LaunchdarklyFlutterPlugin());
+    final LaunchdarklyFlutterPlugin launchdarklyFlutterPlugin = new LaunchdarklyFlutterPlugin(registrar.activity());
+    launchdarklyFlutterPlugin.setupChannel(registrar.messenger());
+  }
+
+  @Override
+  public void onAttachedToEngine(@NonNull FlutterPluginBinding flutterPluginBinding) {
+    setupChannel(flutterPluginBinding.getBinaryMessenger());
+  }
+
+  @Override
+  public void onDetachedFromEngine(@NonNull FlutterPluginBinding binding) {
+    channel.setMethodCallHandler(null);
+    channel = null;
+
+    try {
+      ldClient.close();
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+  }
+
+  @Override
+  public void onAttachedToActivity(ActivityPluginBinding binding) {
+    activity = binding.getActivity();
+  }
+
+  @Override
+  public void onDetachedFromActivityForConfigChanges() {
+
+  }
+
+  @Override
+  public void onReattachedToActivityForConfigChanges(ActivityPluginBinding binding) {
+
+  }
+
+  @Override
+  public void onDetachedFromActivity() {
+
   }
 
   @Override
   public void onMethodCall(@NonNull MethodCall call, @NonNull Result result) {
-    if (call.method.equals("getPlatformVersion")) {
-      result.success("Android " + android.os.Build.VERSION.RELEASE);
+
+    if(call.method.equals("init")){
+
+      String mobileKey = call.argument("mobileKey");
+
+      if(mobileKey == null){
+        result.error("mobileKey null", null, null);
+      }
+
+      LDConfig ldConfig = new LDConfig.Builder()
+              .setMobileKey(mobileKey)
+              .build();
+
+      LDUser user = null;
+
+      if(call.hasArgument("userKey") && call.hasArgument("userEmail")) {
+        String userKey = call.argument("userKey");
+        String userEmail = call.argument("userEmail");
+
+        user = new LDUser.Builder(userKey)
+                .email(userEmail)
+                .build();
+      }else {
+        user = new LDUser.Builder("")
+                .anonymous(true)
+                .build();
+      }
+
+      ldClient = LDClient.init(activity.getApplication(), ldConfig, user, 5);
+
+      result.success(true);
+
+    } else if (call.method.equals("boolVariation")) {
+      String flagKey = call.argument("flagKey");
+      result.success(ldClient.boolVariation(flagKey,null));
+    } else if (call.method.equals("boolVariationFallback")) {
+      String flagKey = call.argument("flagKey");
+      Boolean fallback = call.argument("fallback");
+      result.success(ldClient.boolVariation(flagKey,fallback));
+    } else if (call.method.equals("stringVariation")) {
+      String flagKey = call.argument("flagKey");
+      result.success(ldClient.stringVariation(flagKey,null));
+    }else if (call.method.equals("stringVariationFallback")) {
+      String flagKey = call.argument("flagKey");
+      String fallback = call.argument("fallback");
+      result.success(ldClient.stringVariation(flagKey,fallback));
     } else {
       result.notImplemented();
     }
   }
 
-  @Override
-  public void onDetachedFromEngine(@NonNull FlutterPluginBinding binding) {
+  private void setupChannel(BinaryMessenger messenger) {
+    channel = new MethodChannel(messenger, "launchdarkly_flutter");
+    channel.setMethodCallHandler(this);
   }
 }
