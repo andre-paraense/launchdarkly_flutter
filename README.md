@@ -1,6 +1,6 @@
 # LaunchDarkly Client-side SDK for Flutter
 
-![](https://github.com/andre-paraense/launchdarkly_flutter/workflows/CI/badge.svg) [![codecov](https://codecov.io/gh/andre-paraense/launchdarkly_flutter/branch/master/graph/badge.svg)](https://codecov.io/gh/andre-paraense/launchdarkly_flutter) [![License: MIT](https://img.shields.io/badge/License-LGPL3.0-green.svg)](https://opensource.org/licenses/LGPL-3.0)
+![](https://github.com/andre-paraense/launchdarkly_flutter/workflows/CI/badge.svg) [![codecov](https://codecov.io/gh/andre-paraense/launchdarkly_flutter/branch/master/graph/badge.svg)](https://codecov.io/gh/andre-paraense/launchdarkly_flutter) [![License: MIT](https://img.shields.io/badge/License-LGPL3.0-green.svg)](https://opensource.org/licenses/LGPL-3.0) [![Pub](https://img.shields.io/pub/v/launchdarkly_flutter.svg)](https://pub.dartlang.org/packages/launchdarkly_flutter)
 
 This is an unofficial LaunchDarkly SDK for Flutter.
 
