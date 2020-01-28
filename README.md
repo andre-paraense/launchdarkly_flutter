@@ -16,7 +16,7 @@ Check LaunchDarkly's [documentation](https://docs.launchdarkly.com) for in-depth
 
 To use this plugin, add `launchdarkly_flutter` as a [dependency in your pubspec.yaml file](https://flutter.io/platform-plugins/).
 
-Import `package:launchdarkly_flutter/launchdarkly_flutter.dart`, instantiate `LaunchdarklyFlutter` and initiate the plugin with your mobile key from your [Environments]https://app.launchdarkly.com/settings#/environments) page.
+Import `package:launchdarkly_flutter/launchdarkly_flutter.dart`, instantiate `LaunchdarklyFlutter` and initiate the plugin with your mobile key from your [Environments](https://app.launchdarkly.com/settings#/environments) page.
 
 In the example below - replace the string `YOUR_MOBILE_KEY` with your mobile key.
 
@@ -34,7 +34,7 @@ try {
   await launchdarklyFlutter.init('YOUR_MOBILE_KEY', 'USER_ID', 'USER_EMAIL');
 } on PlatformException {}
 ```
-Be sure to use a mobile key from your [Environments]https://app.launchdarkly.com/settings#/environments) page. Never embed a server-side SDK key into a mobile application. Check LaunchDarkly's [documentation](https://docs.launchdarkly.com) for in-depth instructions on configuring and using LaunchDarkly.
+Be sure to use a mobile key from your [Environments](https://app.launchdarkly.com/settings#/environments) page. Never embed a server-side SDK key into a mobile application. Check LaunchDarkly's [documentation](https://docs.launchdarkly.com) for in-depth instructions on configuring and using LaunchDarkly.
 
 Give some time for the initialization process to fetch new flags values (or risk getting the defaults right away), and check them:
 
