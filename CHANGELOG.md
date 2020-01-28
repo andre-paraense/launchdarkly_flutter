@@ -6,7 +6,6 @@
 
 * Slack integration
 
+## 0.1.0
 
-## 0.0.3
-
-* TODO - describe release
+* First publishable version.

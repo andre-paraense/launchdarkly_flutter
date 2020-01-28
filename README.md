@@ -14,11 +14,40 @@ This SDK is compatible with Flutter 1.12 and Xcode 11 and is tested in Android 2
 
 Check LaunchDarkly's [documentation](https://docs.launchdarkly.com) for in-depth instructions on configuring and using LaunchDarkly.
 
-TODO - explain how to add the plugin to pubspec. Also, instruct in how to use API keys.
+To use this plugin, add `launchdarkly_flutter` as a [dependency in your pubspec.yaml file](https://flutter.io/platform-plugins/).
+
+Import `package:launchdarkly_flutter/launchdarkly_flutter.dart`, instantiate `LaunchdarklyFlutter` and initiate the plugin with your mobile key from your [Environments]https://app.launchdarkly.com/settings#/environments) page.
+
+In the example below - replace the string `YOUR_MOBILE_KEY` with your mobile key.
 
 ## Example
 
-TODO - show an example with code snippet and refer to the example app
+There is an [example](./example) app that demonstrates how to use the plugin.
+
+You just need to instantiate the class and initiate the plugin with your mobile key and the user information, before checking the flags.
+
+```dart
+// Platform messages are asynchronous, so we initialize in an async method.
+LaunchdarklyFlutter launchdarklyFlutter = LaunchdarklyFlutter();
+
+try {
+  await launchdarklyFlutter.init('YOUR_MOBILE_KEY', 'USER_ID', 'USER_EMAIL');
+} on PlatformException {}
+```
+Be sure to use a mobile key from your [Environments]https://app.launchdarkly.com/settings#/environments) page. Never embed a server-side SDK key into a mobile application. Check LaunchDarkly's [documentation](https://docs.launchdarkly.com) for in-depth instructions on configuring and using LaunchDarkly.
+
+Give some time for the initialization process to fetch new flags values (or risk getting the defaults right away), and check them:
+
+```dart
+// Platform messages are asynchronous, so we fetch flags in an async method.
+bool shouldShowButton;
+// Platform messages may fail, so we use a try/catch PlatformException.
+try {
+  shouldShowButton = await launchdarklyFlutter.boolVariation('FLAG_KEY', false);
+} on PlatformException {
+  shouldShowButton = false;
+}
+```
 
 ## Not supported yet
 
