@@ -1,5 +1,5 @@
 group 'com.oakam.launchdarkly_flutter'
-version '1.0'
+version '0.1.0'
 
 buildscript {
     repositories {
@@ -31,4 +31,8 @@ android {
     lintOptions {
         disable 'InvalidPackage'
     }
+}
+
+dependencies {
+    implementation 'com.launchdarkly:launchdarkly-android-client-sdk:2.8.5'
 }
