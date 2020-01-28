@@ -8,4 +8,4 @@
 
 ## 0.1.0
 
-* First publishable version.
+* First publishable version - only the `initialization` (with few options), `boolVariation` and `stringVariation` available in this first version.
