@@ -12,14 +12,6 @@ jobs:
       - uses: subosito/flutter-action@v1.1.1
       - run: cd $FLUTTER_HOME
       - run: mkdir -p .pub-cache
-      - run: cat <<EOF > .pub-cache/credentials.json
-          {
-          "accessToken":"${{secrets.accessToken}}",
-          "refreshToken":"${{secrets.refreshToken}},
-          "tokenEndpoint":"https://accounts.google.com/o/oauth2/token",
-          "scopes":["openid","https://www.googleapis.com/auth/userinfo.email"],
-          "expiration":${{secrets.expiration}}
-          }
-          EOF
+      - run: echo '{"accessToken":"${{secrets.accessToken}}", "refreshToken":"${{secrets.refreshToken}}, "tokenEndpoint":"https://accounts.google.com/o/oauth2/token", "scopes":["openid","https://www.googleapis.com/auth/userinfo.email"], "expiration":${{secrets.expiration}}}' > .pub-cache/credentials.json
       - run: cd $GITHUB_WORKSPACE
       - run: flutter pub publish -f
