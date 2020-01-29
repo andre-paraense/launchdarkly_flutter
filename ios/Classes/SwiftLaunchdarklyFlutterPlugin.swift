@@ -49,7 +49,7 @@ import LaunchDarkly
         
         let flagKey = arguments["flagKey"] as? String ?? ""
         
-        var fallback = arguments["fallback"] as? Bool ?? false
+        let fallback = arguments["fallback"] as? Bool ?? false
         
         result(LDClient.shared.variation(forKey: flagKey, fallback: fallback) as Bool)
 
@@ -63,7 +63,7 @@ import LaunchDarkly
         
         let flagKey = arguments["flagKey"] as? String ?? ""
                
-        var fallback = arguments["fallback"] as? String ?? ""
+        let fallback = arguments["fallback"] as? String ?? ""
                
         result(LDClient.shared.variation(forKey: flagKey, fallback: fallback) as String)
         
