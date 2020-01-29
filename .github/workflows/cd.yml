@@ -9,11 +9,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v1
-      - uses: subosito/flutter-action@v1.1.1
-      - run: cd $FLUTTER_HOME
-      - run: cd ..
-      - run: pwd
-      - run: mkdir -p .pub-cache
-      - run: echo '{"accessToken":"${{secrets.accessToken}}","refreshToken":"${{secrets.refreshToken}},"tokenEndpoint":"https://accounts.google.com/o/oauth2/token","scopes":["openid","https://www.googleapis.com/auth/userinfo.email"], "expiration":${{secrets.expiration}}}' > .pub-cache/credentials.json
-      - run: cd $GITHUB_WORKSPACE
-      - run: flutter pub publish -f
+      - uses: sakebook/actions-flutter-pub-publisher@v1.2.1
+        with:
+          credential: ${{secrets.CREDENTIAL_JSON}}

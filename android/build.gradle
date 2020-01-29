@@ -1,5 +1,5 @@
 group 'com.oakam.launchdarkly_flutter'
-version '0.1.5'
+version '0.1.6'
 
 buildscript {
     repositories {
