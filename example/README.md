@@ -2,15 +2,33 @@
 
 Demonstrates how to use the launchdarkly_flutter plugin.
 
-## Getting Started
+In this example app, replace the string `YOUR_MOBILE_KEY` with your mobile key from your [Environments](https://app.launchdarkly.com/settings#/environments) page.
 
-This project is a starting point for a Flutter application.
+## Example
 
-A few resources to get you started if this is your first Flutter project:
+You just need to instantiate the class and initiate the plugin with your mobile key and the user information, before checking the flags.
 
-- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
+```dart
+// Platform messages are asynchronous, so we initialize in an async method.
+LaunchdarklyFlutter launchdarklyFlutter = LaunchdarklyFlutter();
 
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+try {
+  await launchdarklyFlutter.init('YOUR_MOBILE_KEY', 'USER_ID');
+} on PlatformException {}
+```
+Be sure to use a mobile key from your [Environments](https://app.launchdarkly.com/settings#/environments) page. Never embed a server-side SDK key into a mobile application. Check LaunchDarkly's [documentation](https://docs.launchdarkly.com) for in-depth instructions on configuring and using LaunchDarkly.
+
+Give some time for the initialization process to fetch new flags values (or risk getting the defaults right away), and check them:
+
+```dart
+// Platform messages are asynchronous, so we fetch flags in an async method.
+bool shouldShowButton;
+// Platform messages may fail, so we use a try/catch PlatformException.
+try {
+  shouldShowButton = await launchdarklyFlutter.boolVariation('FLAG_KEY', false);
+} on PlatformException {
+  shouldShowButton = false;
+}
+```
+
+Replace `FLAG_KEY` with your flag key.

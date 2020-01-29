@@ -4,10 +4,10 @@
 #
 Pod::Spec.new do |s|
   s.name             = 'launchdarkly_flutter'
-  s.version          = '0.1.0'
+  s.version          = '0.1.1'
   s.summary          = 'A Flutter LaunchDarkly SDK.'
   s.description      = <<-DESC
-A Flutter LaunchDarkly SDK.
+This is an unofficial LaunchDarkly SDK for Flutter, for anyone willing to use LaunchDarkly in a Flutter app.
                        DESC
   s.homepage         = 'http://example.com'
   s.license          = { :file => '../LICENSE' }

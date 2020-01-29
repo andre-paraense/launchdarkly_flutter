@@ -9,29 +9,28 @@ void main() {
 
   setUp(() {
     channel.setMockMethodCallHandler((MethodCall methodCall) async {
-
-      if(methodCall.method == 'init'){
-        Map<dynamic,dynamic> args = methodCall.arguments;
-        if(args['mobileKey'] == null){
+      if (methodCall.method == 'init') {
+        Map<dynamic, dynamic> args = methodCall.arguments;
+        if (args['mobileKey'] == null) {
           return false;
-        } else if (args['userKey'] == null || args['userEmail'] == null){
+        } else if (args['userKey'] == null) {
           return true;
         } else {
           return true;
         }
       }
 
-      if(methodCall.method == 'boolVariation'){
+      if (methodCall.method == 'boolVariation') {
         return true;
-      }else if(methodCall.method == 'boolVariationFallback'){
-        Map<dynamic,dynamic> args = methodCall.arguments;
+      } else if (methodCall.method == 'boolVariationFallback') {
+        Map<dynamic, dynamic> args = methodCall.arguments;
         return args['fallback'];
       }
 
-      if(methodCall.method == 'stringVariation'){
+      if (methodCall.method == 'stringVariation') {
         return 'something';
-      }else if(methodCall.method == 'stringVariationFallback'){
-        Map<dynamic,dynamic> args = methodCall.arguments;
+      } else if (methodCall.method == 'stringVariationFallback') {
+        Map<dynamic, dynamic> args = methodCall.arguments;
         return args['fallback'];
       }
 
@@ -46,15 +45,15 @@ void main() {
   LaunchdarklyFlutter launchdarklyFlutter = LaunchdarklyFlutter();
 
   test('init with no mobile key', () async {
-    expect(await launchdarklyFlutter.init(null, null, null), false);
+    expect(await launchdarklyFlutter.init(null, null), false);
   });
 
   test('init with no user', () async {
-    expect(await launchdarklyFlutter.init('MOBILE_KEY', null, null), true);
+    expect(await launchdarklyFlutter.init('MOBILE_KEY', null), true);
   });
 
   test('init with all arguments', () async {
-    expect(await launchdarklyFlutter.init('MOBILE_KEY', 'USER_ID', 'USER@EMAIL.COM'), true);
+    expect(await launchdarklyFlutter.init('MOBILE_KEY', 'USER_ID'), true);
   });
 
   test('boolVariation with no fallback', () async {
@@ -66,14 +65,17 @@ void main() {
   });
 
   test('boolVariation with fallback false', () async {
-    expect(await launchdarklyFlutter.boolVariation('ipPermitted', false), false);
+    expect(
+        await launchdarklyFlutter.boolVariation('ipPermitted', false), false);
   });
 
   test('stringVariation with no fallback', () async {
-    expect(await launchdarklyFlutter.stringVariation('ipPermitted', null), 'something');
+    expect(await launchdarklyFlutter.stringVariation('ipPermitted', null),
+        'something');
   });
 
   test('stringVariation with fallback', () async {
-    expect(await launchdarklyFlutter.stringVariation('ipPermitted', 'nothing'), 'nothing');
+    expect(await launchdarklyFlutter.stringVariation('ipPermitted', 'nothing'),
+        'nothing');
   });
 }

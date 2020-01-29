@@ -92,12 +92,10 @@ public class LaunchdarklyFlutterPlugin implements FlutterPlugin, ActivityAware, 
 
       LDUser user = null;
 
-      if(call.hasArgument("userKey") && call.hasArgument("userEmail")) {
+      if(call.hasArgument("userKey")) {
         String userKey = call.argument("userKey");
-        String userEmail = call.argument("userEmail");
 
         user = new LDUser.Builder(userKey)
-                .email(userEmail)
                 .build();
       }else {
         user = new LDUser.Builder("")
