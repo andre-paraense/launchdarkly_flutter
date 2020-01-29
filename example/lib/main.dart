@@ -27,8 +27,7 @@ class _MyAppState extends State<MyApp> {
     launchdarklyFlutter = LaunchdarklyFlutter();
 
     try {
-      await launchdarklyFlutter.init(
-          'YOUR_MOBILE_KEY', 'USER_ID', 'USER_EMAIL');
+      await launchdarklyFlutter.init('YOUR_MOBILE_KEY', 'USER_ID');
     } on PlatformException {}
   }
 

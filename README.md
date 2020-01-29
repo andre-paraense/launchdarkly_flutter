@@ -31,7 +31,7 @@ You just need to instantiate the class and initiate the plugin with your mobile 
 LaunchdarklyFlutter launchdarklyFlutter = LaunchdarklyFlutter();
 
 try {
-  await launchdarklyFlutter.init('YOUR_MOBILE_KEY', 'USER_ID', 'USER_EMAIL');
+  await launchdarklyFlutter.init('YOUR_MOBILE_KEY', 'USER_ID');
 } on PlatformException {}
 ```
 Be sure to use a mobile key from your [Environments](https://app.launchdarkly.com/settings#/environments) page. Never embed a server-side SDK key into a mobile application. Check LaunchDarkly's [documentation](https://docs.launchdarkly.com) for in-depth instructions on configuring and using LaunchDarkly.

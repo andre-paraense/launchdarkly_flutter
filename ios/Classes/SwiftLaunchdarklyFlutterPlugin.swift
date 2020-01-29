@@ -25,15 +25,14 @@ import LaunchDarkly
         let config = LDConfig(mobileKey: mobileKey ?? "")
         
         let userKey = arguments["userKey"] as? String
-        let userEmail = arguments["userEmail"] as? String
         
-        if( (userKey ?? "").isEmpty || (userEmail ?? "").isEmpty) {
+        if( (userKey ?? "").isEmpty ) {
             
             LDClient.shared.startCompleteWhenFlagsReceived(config: config)
             
         }else{
             
-            let user = LDUser(key: userKey, email: userEmail)
+            let user = LDUser(key: userKey)
             LDClient.shared.startCompleteWhenFlagsReceived(config: config, user: user)
         }
         
