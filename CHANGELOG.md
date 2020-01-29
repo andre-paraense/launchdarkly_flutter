@@ -1,4 +1,4 @@
-## 0.1.2
+## 0.1.3
 
 * Some more work behind the scenes in the repository, like configuring CI/CD.
 
