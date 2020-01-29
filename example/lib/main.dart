@@ -15,7 +15,7 @@ class _MyAppState extends State<MyApp> {
   LaunchdarklyFlutter launchdarklyFlutter;
 
   @override
-  void initState(){
+  void initState() {
     super.initState();
     initPlatformState();
   }
@@ -27,7 +27,8 @@ class _MyAppState extends State<MyApp> {
     launchdarklyFlutter = LaunchdarklyFlutter();
 
     try {
-      await launchdarklyFlutter.init('YOUR_MOBILE_KEY', 'USER_ID', 'USER_EMAIL');
+      await launchdarklyFlutter.init(
+          'YOUR_MOBILE_KEY', 'USER_ID', 'USER_EMAIL');
     } on PlatformException {}
   }
 
@@ -47,9 +48,7 @@ class _MyAppState extends State<MyApp> {
                 onPressed: () async {
                   verifyFlag();
                 },
-                child: Text(
-                  'Verify'
-                ),
+                child: Text('Verify'),
               ),
             ],
           ),
@@ -62,7 +61,8 @@ class _MyAppState extends State<MyApp> {
     bool shouldShowButton;
     // Platform messages may fail, so we use a try/catch PlatformException.
     try {
-      shouldShowButton = await launchdarklyFlutter.boolVariation('FLAG_KEY', false);
+      shouldShowButton =
+          await launchdarklyFlutter.boolVariation('FLAG_KEY', false);
     } on PlatformException {
       shouldShowButton = false;
     }

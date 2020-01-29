@@ -1,11 +1,15 @@
-## 0.0.1
+## 0.1.1
 
-* Initial release - CI/CD testing.
+* Some package hygiene, health issues and maintenance.
+
+## 0.1.0
+
+* First publishable version - only the `initialization` (with few options), `boolVariation` and `stringVariation` available in this first version.
 
 ## 0.0.2
 
 * Slack integration
 
-## 0.1.0
+## 0.0.1
 
-* First publishable version - only the `initialization` (with few options), `boolVariation` and `stringVariation` available in this first version.
+* Initial release - CI/CD testing.
