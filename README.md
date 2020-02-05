@@ -18,13 +18,32 @@ To use this plugin, add `launchdarkly_flutter` as a [dependency in your pubspec.
 
 Import `package:launchdarkly_flutter/launchdarkly_flutter.dart`, instantiate `LaunchdarklyFlutter` and initiate the plugin with your mobile key from your [Environments](https://app.launchdarkly.com/settings#/environments) page.
 
-In the example below - replace the string `YOUR_MOBILE_KEY` with your mobile key.
+### Android integration
+
+Because LaunchDarkly Android's SDK (`com.launchdarkly:launchdarkly-android-client-sdk:2.8.5`) has the attribute value set in its `<application>` element, there is a need to override it with your app's own label, if there is one (you will likely have one!) :).
+Hence you will need to add `tools:replace="android:label"` to the `<application>` element in your `AndroidManifest.xml`.
+
+```xml
+<application
+        tools:replace="android:label"
+        android:name="io.flutter.app.FlutterApplication"
+        android:label="YOUR_LABEL"
+        android:icon="@mipmap/ic_launcher">
+```
+
+You will probably need to insert the `tools` namespace as well, on top of your `AndroidManifest.xml`:
+
+```xml
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    package="YOUR.PACKAGE.HERE">
+```
 
 ## Example
 
 There is an [example](./example) app that demonstrates how to use the plugin.
 
-You just need to instantiate the class and initiate the plugin with your mobile key and the user information, before checking the flags.
+You need to instantiate the class and initiate the plugin with your mobile key and the user information, before checking the flags.
 
 ```dart
 // Platform messages are asynchronous, so we initialize in an async method.
