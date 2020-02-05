@@ -4,7 +4,7 @@
 
 This is an unofficial LaunchDarkly SDK for Flutter.
 
-This is a work in progress and still has many features that have not been address. You are welcome to [contribute](CONTRIBUTING.md).
+This is a work in progress and still has many features that have not been addressed. You are welcome to [contribute](CONTRIBUTING.md).
 
 ## Supported versions
 
