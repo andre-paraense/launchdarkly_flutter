@@ -31,7 +31,7 @@ Hence, you will need to add `tools:replace="android:label"` to the `<application
         android:icon="@mipmap/ic_launcher">
 ```
 
-You will probably need to insert the `tools` namespace as well, on top of your `AndroidManifest.xml`:
+You will probably need to insert the `tools` namespace as well, on the top of your `AndroidManifest.xml` file:
 
 ```xml
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
