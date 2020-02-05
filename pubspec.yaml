@@ -1,6 +1,6 @@
 name: launchdarkly_flutter
 description: This is an unofficial LaunchDarkly SDK for Flutter, for anyone willing to use LaunchDarkly in a Flutter app.
-version: 0.1.6
+version: 0.1.7
 homepage: https://github.com/andre-paraense/launchdarkly_flutter
 issue_tracker: https://github.com/andre-paraense/launchdarkly_flutter/issues
 
