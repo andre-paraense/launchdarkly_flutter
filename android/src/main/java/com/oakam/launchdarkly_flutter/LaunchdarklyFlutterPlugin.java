@@ -4,11 +4,14 @@ import android.app.Activity;
 
 import androidx.annotation.NonNull;
 
+import com.launchdarkly.android.FeatureFlagChangeListener;
 import com.launchdarkly.android.LDClient;
 import com.launchdarkly.android.LDConfig;
 import com.launchdarkly.android.LDUser;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 import io.flutter.embedding.engine.plugins.FlutterPlugin;
 import io.flutter.embedding.engine.plugins.activity.ActivityAware;
@@ -26,6 +29,7 @@ public class LaunchdarklyFlutterPlugin implements FlutterPlugin, ActivityAware, 
   private MethodChannel channel;
   private Activity activity;
   private LDClient ldClient;
+  private Map<String, FeatureFlagChangeListener> listeners = new HashMap<>();
 
   public LaunchdarklyFlutterPlugin() {}
 
@@ -117,10 +121,35 @@ public class LaunchdarklyFlutterPlugin implements FlutterPlugin, ActivityAware, 
     } else if (call.method.equals("stringVariation")) {
       String flagKey = call.argument("flagKey");
       result.success(ldClient.stringVariation(flagKey,null));
-    }else if (call.method.equals("stringVariationFallback")) {
+    } else if (call.method.equals("stringVariationFallback")) {
       String flagKey = call.argument("flagKey");
       String fallback = call.argument("fallback");
       result.success(ldClient.stringVariation(flagKey,fallback));
+    } else if (call.method.equals("registerFeatureFlagListener")) {
+
+      String flagKey = call.argument("flagKey");
+
+      FeatureFlagChangeListener listener = new FeatureFlagChangeListener() {
+        @Override
+        public void onFeatureFlagChange(String flagKey) {
+          Map<String, String> arguments = new HashMap<>();
+          arguments.put("flagKey",flagKey);
+
+          channel.invokeMethod("registerFeatureFlagListener",arguments);
+        }
+      };
+
+      ldClient.registerFeatureFlagListener(flagKey, listener);
+      listeners.put(flagKey, listener);
+
+    } else if (call.method.equals("unregisterFeatureFlagListener")) {
+      String flagKey = call.argument("flagKey");
+      if (listeners.containsKey(flagKey)) {
+        ldClient.unregisterFeatureFlagListener(flagKey, listeners.get(flagKey));
+        listeners.remove(flagKey);
+        result.success(true);
+      }
+      result.success(false);
     } else {
       result.notImplemented();
     }
