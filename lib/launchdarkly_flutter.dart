@@ -5,18 +5,22 @@ import 'package:flutter/services.dart';
 /// The main entry point is the init method.
 class LaunchdarklyFlutter {
 
-  Map<String,void Function(String)> flagListeners;
+  final Map<String,void Function(String)> flagListeners = {};
 
-  static const MethodChannel _channel =
-      const MethodChannel('launchdarkly_flutter');
+  static const MethodChannel _channel = const MethodChannel('launchdarkly_flutter');
 
   LaunchdarklyFlutter() {
-    flagListeners = <String,void Function(String)>{};
     _channel.setMethodCallHandler((MethodCall call) async {
       switch(call.method) {
         case 'registerFeatureFlagListener':
-          _flagUpdateListener(call.arguments);
-          break;
+          if(call.arguments.containsKey('flagKey')){
+            String flagKey = call.arguments['flagKey'];
+            if(flagListeners.containsKey(flagKey)){
+              Function(String) listener = flagListeners[flagKey];
+              listener(flagKey);
+            }
+          }
+          return true;
         default:
           throw MissingPluginException();
       }
@@ -75,9 +79,10 @@ class LaunchdarklyFlutter {
   }
 
   Future<void> registerFeatureFlagListener(String flagKey, void Function(String) callback) async {
-    flagListeners[flagKey] = callback;
-
-    if(!flagListeners.containsKey(flagKey)){
+    if(flagListeners.containsKey(flagKey)){
+      flagListeners[flagKey] = callback;
+    } else {
+      flagListeners[flagKey] = callback;
       await _channel.invokeMethod('registerFeatureFlagListener',<String, dynamic>{'flagKey': flagKey});
     }
   }
@@ -87,19 +92,7 @@ class LaunchdarklyFlutter {
       return false;
     }
 
-    bool result = await _channel.invokeMethod('unregisterFeatureFlagListener',<String, dynamic>{'flagKey': flagKey});
     flagListeners.remove(flagKey);
-
-    return result;
-  }
-
-  void _flagUpdateListener(Map<String,String> arguments) {
-    if(arguments.containsKey('flagKey')){
-      String flagKey = arguments['flagKey'];
-      if(flagListeners.containsKey(flagKey)){
-        Function(String) listener = flagListeners[flagKey];
-        listener(flagKey);
-      }
-    }
+    return await _channel.invokeMethod('unregisterFeatureFlagListener',<String, dynamic>{'flagKey': flagKey});
   }
 }
