@@ -56,24 +56,25 @@ class _MyAppState extends State<MyApp> {
               ),
               RaisedButton(
                 onPressed: () async {
-                  if(_listenerRegistered) {
-                    try{
+                  if (_listenerRegistered) {
+                    try {
                       setState(() {
                         _listenerRegistered = false;
                       });
-                      await launchdarklyFlutter.unregisterFeatureFlagListener(flagKey);
+                      await launchdarklyFlutter
+                          .unregisterFeatureFlagListener(flagKey);
                     } on PlatformException {
                       setState(() {
                         _listenerRegistered = true;
                       });
                     }
-
                   } else {
-                    try{
+                    try {
                       setState(() {
                         _listenerRegistered = true;
                       });
-                      await launchdarklyFlutter.registerFeatureFlagListener(flagKey, _verifyFlag);
+                      await launchdarklyFlutter.registerFeatureFlagListener(
+                          flagKey, _verifyFlag);
                     } on PlatformException {
                       setState(() {
                         _listenerRegistered = false;
@@ -81,11 +82,9 @@ class _MyAppState extends State<MyApp> {
                     }
                   }
                 },
-                child: Text(
-                    _listenerRegistered
-                        ? 'Unregister listener'
-                        : 'Register listener'
-                ),
+                child: Text(_listenerRegistered
+                    ? 'Unregister listener'
+                    : 'Register listener'),
               ),
             ],
           ),
@@ -98,8 +97,7 @@ class _MyAppState extends State<MyApp> {
     bool shouldShow;
     // Platform messages may fail, so we use a try/catch PlatformException.
     try {
-      shouldShow =
-          await launchdarklyFlutter.boolVariation(flagKey, false);
+      shouldShow = await launchdarklyFlutter.boolVariation(flagKey, false);
     } on PlatformException {
       shouldShow = false;
     }

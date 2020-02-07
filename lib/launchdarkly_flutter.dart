@@ -2,20 +2,23 @@ import 'dart:async';
 import 'package:flutter/services.dart';
 
 /// Client for accessing LaunchDarkly's Feature Flag system.
-/// The main entry point is the init method.
 class LaunchdarklyFlutter {
+  Map<String, void Function(String)> flagListeners;
+  static const MethodChannel _channel =
+      const MethodChannel('launchdarkly_flutter');
 
-  final Map<String,void Function(String)> flagListeners = {};
+  /// Constructor for the Client for accessing LaunchDarkly's Feature Flag system.
+  /// The main entry point.
+  /// [flagListeners] (optional) is the map of flag keys and callbacks.
+  LaunchdarklyFlutter({this.flagListeners}) {
+    flagListeners ??= {};
 
-  static const MethodChannel _channel = const MethodChannel('launchdarkly_flutter');
-
-  LaunchdarklyFlutter() {
     _channel.setMethodCallHandler((MethodCall call) async {
-      switch(call.method) {
+      switch (call.method) {
         case 'registerFeatureFlagListener':
-          if(call.arguments.containsKey('flagKey')){
+          if (call.arguments.containsKey('flagKey')) {
             String flagKey = call.arguments['flagKey'];
-            if(flagListeners.containsKey(flagKey)){
+            if (flagListeners.containsKey(flagKey)) {
               Function(String) listener = flagListeners[flagKey];
               listener(flagKey);
             }
@@ -78,21 +81,40 @@ class LaunchdarklyFlutter {
     }
   }
 
-  Future<void> registerFeatureFlagListener(String flagKey, void Function(String) callback) async {
-    if(flagListeners.containsKey(flagKey)){
+  /// Registers a callback to be called when the flagKey changes
+  /// from its current value. If the feature flag is deleted, the listener will be unregistered.
+  ///
+  /// [flagKey]  the flag key to attach the listener to
+  /// [callback] the listener to attach to the flag key
+  Future<void> registerFeatureFlagListener(
+      String flagKey, void Function(String) callback) async {
+    if (flagKey == null || callback == null) {
+      return;
+    }
+
+    if (flagListeners.containsKey(flagKey)) {
       flagListeners[flagKey] = callback;
     } else {
       flagListeners[flagKey] = callback;
-      await _channel.invokeMethod('registerFeatureFlagListener',<String, dynamic>{'flagKey': flagKey});
+      await _channel.invokeMethod(
+          'registerFeatureFlagListener', <String, dynamic>{'flagKey': flagKey});
     }
   }
 
-  Future<bool> unregisterFeatureFlagListener(String flagKey) async{
-    if(!flagListeners.containsKey(flagKey) || flagListeners[flagKey] == null){
+  /// Unregisters the existing callback for the flagKey.
+  ///
+  /// [flagKey] the flag key to remove the listener from
+  Future<bool> unregisterFeatureFlagListener(String flagKey) async {
+    if (flagKey == null) {
+      return false;
+    }
+
+    if (!flagListeners.containsKey(flagKey) || flagListeners[flagKey] == null) {
       return false;
     }
 
     flagListeners.remove(flagKey);
-    return await _channel.invokeMethod('unregisterFeatureFlagListener',<String, dynamic>{'flagKey': flagKey});
+    return await _channel.invokeMethod(
+        'unregisterFeatureFlagListener', <String, dynamic>{'flagKey': flagKey});
   }
 }

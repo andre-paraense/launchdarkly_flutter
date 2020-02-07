@@ -42,7 +42,10 @@ void main() {
     channel.setMockMethodCallHandler(null);
   });
 
-  LaunchdarklyFlutter launchdarklyFlutter = LaunchdarklyFlutter();
+  Map<String, void Function(String)> flagListeners = {};
+
+  LaunchdarklyFlutter launchdarklyFlutter =
+      LaunchdarklyFlutter(flagListeners: flagListeners);
 
   test('init with no mobile key', () async {
     expect(await launchdarklyFlutter.init(null, null), false);
@@ -77,5 +80,58 @@ void main() {
   test('stringVariation with fallback', () async {
     expect(await launchdarklyFlutter.stringVariation('ipPermitted', 'nothing'),
         'nothing');
+  });
+
+  test('registerFeatureFlagListener with flagKey and callback null', () async {
+    String flagKey = 'flagKey';
+    await launchdarklyFlutter.registerFeatureFlagListener(null, null);
+    expect(flagListeners[flagKey], null);
+  });
+
+  test('registerFeatureFlagListener with callback null', () async {
+    String flagKey = 'flagKey';
+    await launchdarklyFlutter.registerFeatureFlagListener(flagKey, null);
+    expect(flagListeners[flagKey], null);
+  });
+
+  test('registerFeatureFlagListener with flagKey null', () async {
+    String flagKey = 'flagKey';
+    void Function(String) callback = (flagKey) {};
+
+    await launchdarklyFlutter.registerFeatureFlagListener(null, callback);
+    expect(flagListeners[flagKey], null);
+  });
+
+  test('registerFeatureFlagListener registering flagKey with callback',
+      () async {
+    String flagKey = 'flagKey';
+    Function(String) callback = (flagKey) {
+      return 'callback';
+    };
+
+    await launchdarklyFlutter.registerFeatureFlagListener(flagKey, callback);
+    expect(flagListeners[flagKey], callback);
+  });
+
+  test('unregisterFeatureFlagListener with flagKey null', () async {
+    String flagKey = 'flagKey';
+    Function(String) callback = (flagKey) {
+      return 'callback';
+    };
+    await launchdarklyFlutter.registerFeatureFlagListener(flagKey, callback);
+    expect(flagListeners[flagKey], callback);
+    await launchdarklyFlutter.unregisterFeatureFlagListener(null);
+    expect(flagListeners[flagKey], callback);
+  });
+
+  test('unregisterFeatureFlagListener flagKey', () async {
+    String flagKey = 'flagKey';
+    Function(String) callback = (flagKey) {
+      return 'callback';
+    };
+    await launchdarklyFlutter.registerFeatureFlagListener(flagKey, callback);
+    expect(flagListeners[flagKey], callback);
+    await launchdarklyFlutter.unregisterFeatureFlagListener(flagKey);
+    expect(flagListeners[flagKey], null);
   });
 }
