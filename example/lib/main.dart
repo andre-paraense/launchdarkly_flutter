@@ -58,19 +58,27 @@ class _MyAppState extends State<MyApp> {
                 onPressed: () async {
                   if(_listenerRegistered) {
                     try{
-                      await launchdarklyFlutter.unregisterFeatureFlagListener(flagKey);
                       setState(() {
                         _listenerRegistered = false;
                       });
-                    } on PlatformException {}
-
-                  } else {
-                    try{
-                      await launchdarklyFlutter.registerFeatureFlagListener(flagKey, _verifyFlag);
+                      await launchdarklyFlutter.unregisterFeatureFlagListener(flagKey);
+                    } on PlatformException {
                       setState(() {
                         _listenerRegistered = true;
                       });
-                    } on PlatformException {}
+                    }
+
+                  } else {
+                    try{
+                      setState(() {
+                        _listenerRegistered = true;
+                      });
+                      await launchdarklyFlutter.registerFeatureFlagListener(flagKey, _verifyFlag);
+                    } on PlatformException {
+                      setState(() {
+                        _listenerRegistered = false;
+                      });
+                    }
                   }
                 },
                 child: Text(

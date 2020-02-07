@@ -30,6 +30,7 @@ import LaunchDarkly
         
         if (mobileKey ?? "").isEmpty {
             result(false)
+            return
         }
         
         let config = LDConfig(mobileKey: mobileKey ?? "")
@@ -47,7 +48,6 @@ import LaunchDarkly
         }
         
         result(true)
-
     } else if(call.method == "boolVariation") {
         
         let flagKey = arguments["flagKey"] as? String ?? ""
@@ -101,6 +101,7 @@ import LaunchDarkly
             LDClient.shared.stopObserving(owner: FlutterChannel.shared.listeners[flagKey] ?? flagKey as LDObserverOwner)
             FlutterChannel.shared.listeners.removeValue(forKey: flagKey)
             result(true)
+            return
         }
         
         result(false)

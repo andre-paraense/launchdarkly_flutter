@@ -88,6 +88,7 @@ public class LaunchdarklyFlutterPlugin implements FlutterPlugin, ActivityAware, 
 
       if(mobileKey == null){
         result.error("mobileKey null", null, null);
+        return;
       }
 
       LDConfig ldConfig = new LDConfig.Builder()
@@ -110,7 +111,6 @@ public class LaunchdarklyFlutterPlugin implements FlutterPlugin, ActivityAware, 
       ldClient = LDClient.init(activity.getApplication(), ldConfig, user, 5);
 
       result.success(true);
-
     } else if (call.method.equals("boolVariation")) {
       String flagKey = call.argument("flagKey");
       result.success(ldClient.boolVariation(flagKey,null));
@@ -148,6 +148,7 @@ public class LaunchdarklyFlutterPlugin implements FlutterPlugin, ActivityAware, 
         ldClient.unregisterFeatureFlagListener(flagKey, listeners.get(flagKey));
         listeners.remove(flagKey);
         result.success(true);
+        return;
       }
       result.success(false);
     } else {
