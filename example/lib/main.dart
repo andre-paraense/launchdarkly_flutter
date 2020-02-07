@@ -12,6 +12,7 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   bool _shouldShow = false;
+  bool _listenerRegistered = false;
   LaunchdarklyFlutter launchdarklyFlutter;
 
   String mobileKey = 'YOUR_MOBILE_KEY';
@@ -55,19 +56,28 @@ class _MyAppState extends State<MyApp> {
               ),
               RaisedButton(
                 onPressed: () async {
-                  try{
-                    await launchdarklyFlutter.registerFeatureFlagListener(flagKey, _verifyFlag);
-                  } on PlatformException {}
+                  if(_listenerRegistered) {
+                    try{
+                      await launchdarklyFlutter.unregisterFeatureFlagListener(flagKey);
+                      setState(() {
+                        _listenerRegistered = false;
+                      });
+                    } on PlatformException {}
+
+                  } else {
+                    try{
+                      await launchdarklyFlutter.registerFeatureFlagListener(flagKey, _verifyFlag);
+                      setState(() {
+                        _listenerRegistered = true;
+                      });
+                    } on PlatformException {}
+                  }
                 },
-                child: Text('Register listener'),
-              ),
-              RaisedButton(
-                onPressed: () async {
-                  try{
-                    await launchdarklyFlutter.unregisterFeatureFlagListener(flagKey);
-                  } on PlatformException {}
-                },
-                child: Text('Unregister listener'),
+                child: Text(
+                    _listenerRegistered
+                        ? 'Unregister listener'
+                        : 'Register listener'
+                ),
               ),
             ],
           ),
