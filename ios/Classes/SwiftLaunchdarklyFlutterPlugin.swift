@@ -85,7 +85,7 @@ import LaunchDarkly
         LDClient.shared.observe(keys: [flagKey], owner: flagObserverOwner, handler: { (changedFlags) in
             if changedFlags[flagKey] != nil {
                 let flagKeyMap = ["flagKey": flagKey]
-                FlutterChannel.shared.channel?.invokeMethod("registerFeatureFlagListener", arguments: flagKeyMap)
+                FlutterChannel.shared.channel?.invokeMethod("callbackRegisterFeatureFlagListener", arguments: flagKeyMap)
             }
         })
         

@@ -3,9 +3,14 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:launchdarkly_flutter/launchdarkly_flutter.dart';
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+
   const MethodChannel channel = MethodChannel('launchdarkly_flutter');
 
-  TestWidgetsFlutterBinding.ensureInitialized();
+  final Map<String, void Function(String)> flagListeners = {};
+
+  final LaunchdarklyFlutter launchdarklyFlutter =
+      LaunchdarklyFlutter(flagListeners: flagListeners);
 
   setUp(() {
     channel.setMockMethodCallHandler((MethodCall methodCall) async {
@@ -34,6 +39,16 @@ void main() {
         return args['fallback'];
       }
 
+      if (methodCall.method == 'callbackRegisterFeatureFlagListener') {
+        if (methodCall.arguments.containsKey('flagKey')) {
+          String flagKey = methodCall.arguments['flagKey'];
+          if (flagListeners.containsKey(flagKey)) {
+            Function(String) listener = flagListeners[flagKey];
+            return listener(flagKey);
+          }
+        }
+      }
+
       return null;
     });
   });
@@ -41,11 +56,6 @@ void main() {
   tearDown(() {
     channel.setMockMethodCallHandler(null);
   });
-
-  Map<String, void Function(String)> flagListeners = {};
-
-  LaunchdarklyFlutter launchdarklyFlutter =
-      LaunchdarklyFlutter(flagListeners: flagListeners);
 
   test('init with no mobile key', () async {
     expect(await launchdarklyFlutter.init(null, null), false);
@@ -106,11 +116,19 @@ void main() {
       () async {
     String flagKey = 'flagKey';
     Function(String) callback = (flagKey) {
-      return 'callback';
+      return flagKey;
     };
 
     await launchdarklyFlutter.registerFeatureFlagListener(flagKey, callback);
     expect(flagListeners[flagKey], callback);
+
+    Map<String, String> arguments = {};
+    arguments['flagKey'] = flagKey;
+
+    expect(
+        await channel.invokeMethod(
+            "callbackRegisterFeatureFlagListener", arguments),
+        flagKey);
   });
 
   test('unregisterFeatureFlagListener with flagKey null', () async {

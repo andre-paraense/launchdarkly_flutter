@@ -135,7 +135,7 @@ public class LaunchdarklyFlutterPlugin implements FlutterPlugin, ActivityAware, 
           Map<String, String> arguments = new HashMap<>();
           arguments.put("flagKey",flagKey);
 
-          channel.invokeMethod("registerFeatureFlagListener",arguments);
+          channel.invokeMethod("callbackRegisterFeatureFlagListener",arguments);
         }
       };
 

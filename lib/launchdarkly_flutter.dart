@@ -15,7 +15,7 @@ class LaunchdarklyFlutter {
 
     _channel.setMethodCallHandler((MethodCall call) async {
       switch (call.method) {
-        case 'registerFeatureFlagListener':
+        case 'callbackRegisterFeatureFlagListener':
           if (call.arguments.containsKey('flagKey')) {
             String flagKey = call.arguments['flagKey'];
             if (flagListeners.containsKey(flagKey)) {
