@@ -39,17 +39,15 @@ void main() {
         return args['fallback'];
       }
 
-      if (methodCall.method == 'callbackRegisterFeatureFlagListener') {
-        if (methodCall.arguments.containsKey('flagKey')) {
-          String flagKey = methodCall.arguments['flagKey'];
-          if (flagListeners.containsKey(flagKey)) {
-            Function(String) listener = flagListeners[flagKey];
-            return listener(flagKey);
-          }
-        }
+      if (methodCall.method == 'registerFeatureFlagListener') {
+        return true;
       }
 
-      return null;
+      if (methodCall.method == 'unregisterFeatureFlagListener') {
+        return true;
+      }
+
+      return launchdarklyFlutter.handlerMethodCalls(methodCall);
     });
   });
 
@@ -121,14 +119,6 @@ void main() {
 
     await launchdarklyFlutter.registerFeatureFlagListener(flagKey, callback);
     expect(flagListeners[flagKey], callback);
-
-    Map<String, String> arguments = {};
-    arguments['flagKey'] = flagKey;
-
-    expect(
-        await channel.invokeMethod(
-            "callbackRegisterFeatureFlagListener", arguments),
-        flagKey);
   });
 
   test('unregisterFeatureFlagListener with flagKey null', () async {
@@ -151,5 +141,60 @@ void main() {
     expect(flagListeners[flagKey], callback);
     await launchdarklyFlutter.unregisterFeatureFlagListener(flagKey);
     expect(flagListeners[flagKey], null);
+  });
+
+  test('registerFeatureFlagListener callback for non-existing method',
+      () async {
+    String flagKey = 'flagKey';
+
+    Map<String, String> arguments = {};
+    arguments['flagKey'] = flagKey;
+
+    try {
+      await channel.invokeMethod('non-existing-method', arguments);
+      fail("exception not thrown");
+    } catch (e) {
+      expect(e, isInstanceOf<MissingPluginException>());
+    }
+  });
+
+  test(
+      'registerFeatureFlagListener callback for existing callbackRegisterFeatureFlagListener method with wrong flagKey',
+      () async {
+    String flagKey = 'flagKey';
+    Function(String) callback = (flagKey) {
+      return flagKey;
+    };
+
+    await launchdarklyFlutter.registerFeatureFlagListener(flagKey, callback);
+    expect(flagListeners[flagKey], callback);
+
+    Map<String, String> arguments = {};
+    arguments['flagKey'] = 'wrong-flag-key';
+
+    expect(
+        await channel.invokeMethod(
+            'callbackRegisterFeatureFlagListener', arguments),
+        false);
+  });
+
+  test(
+      'registerFeatureFlagListener callback for existing callbackRegisterFeatureFlagListener method with correct flagKey',
+      () async {
+    String flagKey = 'flagKey';
+    Function(String) callback = (flagKey) {
+      return flagKey;
+    };
+
+    await launchdarklyFlutter.registerFeatureFlagListener(flagKey, callback);
+    expect(flagListeners[flagKey], callback);
+
+    Map<String, String> arguments = {};
+    arguments['flagKey'] = flagKey;
+
+    expect(
+        await channel.invokeMethod(
+            'callbackRegisterFeatureFlagListener', arguments),
+        true);
   });
 }

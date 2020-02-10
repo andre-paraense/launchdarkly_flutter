@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 
 /// Client for accessing LaunchDarkly's Feature Flag system.
@@ -13,21 +14,25 @@ class LaunchdarklyFlutter {
   LaunchdarklyFlutter({this.flagListeners}) {
     flagListeners ??= {};
 
-    _channel.setMethodCallHandler((MethodCall call) async {
-      switch (call.method) {
-        case 'callbackRegisterFeatureFlagListener':
-          if (call.arguments.containsKey('flagKey')) {
-            String flagKey = call.arguments['flagKey'];
-            if (flagListeners.containsKey(flagKey)) {
-              Function(String) listener = flagListeners[flagKey];
-              listener(flagKey);
-            }
+    _channel.setMethodCallHandler(handlerMethodCalls);
+  }
+
+  @visibleForTesting
+  Future<dynamic> handlerMethodCalls(MethodCall call) async {
+    switch (call.method) {
+      case 'callbackRegisterFeatureFlagListener':
+        if (call.arguments.containsKey('flagKey')) {
+          String flagKey = call.arguments['flagKey'];
+          if (flagListeners.containsKey(flagKey)) {
+            Function(String) listener = flagListeners[flagKey];
+            listener(flagKey);
+            return true;
           }
-          return true;
-        default:
-          throw MissingPluginException();
-      }
-    });
+        }
+        return false;
+      default:
+        throw MissingPluginException();
+    }
   }
 
   /// Initializes and blocks for up to 5 seconds
