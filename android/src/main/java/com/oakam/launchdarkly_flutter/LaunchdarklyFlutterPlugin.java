@@ -125,7 +125,9 @@ public class LaunchdarklyFlutterPlugin implements FlutterPlugin, ActivityAware, 
       String flagKey = call.argument("flagKey");
       String fallback = call.argument("fallback");
       result.success(ldClient.stringVariation(flagKey,fallback));
-    } else if (call.method.equals("registerFeatureFlagListener")) {
+    } else if (call.method.equals("allFlags")) {
+      result.success(ldClient.allFlags());
+    }else if (call.method.equals("registerFeatureFlagListener")) {
 
       String flagKey = call.argument("flagKey");
 

@@ -13,6 +13,7 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   bool _shouldShow = false;
   bool _listenerRegistered = false;
+  Map<String, dynamic> _allFlags = {};
   LaunchdarklyFlutter launchdarklyFlutter;
 
   String mobileKey = 'YOUR_MOBILE_KEY';
@@ -86,6 +87,14 @@ class _MyAppState extends State<MyApp> {
                     ? 'Unregister listener'
                     : 'Register listener'),
               ),
+              SizedBox(height: 30.0,),
+              RaisedButton(
+                onPressed: () async {
+                  _verifyAllFlags();
+                },
+                child: Text('Verify all flags'),
+              ),
+              Text('All flags: $_allFlags\n'),
             ],
           ),
         ),
@@ -109,6 +118,25 @@ class _MyAppState extends State<MyApp> {
 
     setState(() {
       _shouldShow = shouldShow;
+    });
+  }
+
+  void _verifyAllFlags() async {
+    Map<String, dynamic> allFlags;
+    // Platform messages may fail, so we use a try/catch PlatformException.
+    try {
+      allFlags = await launchdarklyFlutter.allFlags();
+    } on PlatformException {
+      allFlags = {};
+    }
+
+    // If the widget was removed from the tree while the asynchronous platform
+    // message was in flight, we want to discard the reply rather than calling
+    // setState to update our non-existent appearance.
+    if (!mounted) return;
+
+    setState(() {
+      _allFlags = allFlags;
     });
   }
 }

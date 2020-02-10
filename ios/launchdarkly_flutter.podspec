@@ -4,7 +4,7 @@
 #
 Pod::Spec.new do |s|
   s.name             = 'launchdarkly_flutter'
-  s.version          = '0.2.0'
+  s.version          = '0.3.0'
   s.summary          = 'A Flutter LaunchDarkly SDK.'
   s.description      = <<-DESC
 This is an unofficial LaunchDarkly SDK for Flutter, for anyone willing to use LaunchDarkly in a Flutter app.

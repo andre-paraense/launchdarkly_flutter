@@ -22,7 +22,7 @@ import LaunchDarkly
   }
 
   public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult)  {
-    let arguments = call.arguments as! [String:Any]
+    let arguments = call.arguments as? [String:Any] ?? [:]
     
     if (call.method == "init") {
         
@@ -76,7 +76,13 @@ import LaunchDarkly
                
         result(LDClient.shared.variation(forKey: flagKey, fallback: fallback) as String)
         
-    } else if(call.method == "registerFeatureFlagListener") {
+    } else if(call.method == "allFlags") {
+        
+        let allFlags = LDClient.shared.allFlagValues ?? [:]
+               
+        result(allFlags)
+        
+    }else if(call.method == "registerFeatureFlagListener") {
         
         let flagKey = arguments["flagKey"] as? String ?? ""
         
