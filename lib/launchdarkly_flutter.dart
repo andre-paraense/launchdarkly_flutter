@@ -122,4 +122,11 @@ class LaunchdarklyFlutter {
     return await _channel.invokeMethod(
         'unregisterFeatureFlagListener', <String, dynamic>{'flagKey': flagKey});
   }
+
+  /// Returns a map of all feature flags for the current user. No events are sent to LaunchDarkly.
+  Future<Map<String, dynamic>> allFlags() async {
+    Map<String, dynamic> allFlags =
+        Map<String, dynamic>.from(await _channel.invokeMethod('allFlags'));
+    return allFlags;
+  }
 }

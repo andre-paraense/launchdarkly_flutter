@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:launchdarkly_flutter/launchdarkly_flutter.dart';
@@ -45,6 +47,11 @@ void main() {
 
       if (methodCall.method == 'unregisterFeatureFlagListener') {
         return true;
+      }
+
+      if (methodCall.method == 'allFlags') {
+        Map<String, dynamic> response = jsonDecode('{"flagKey":true}');
+        return response;
       }
 
       return launchdarklyFlutter.handlerMethodCalls(methodCall);
@@ -196,5 +203,11 @@ void main() {
         await channel.invokeMethod(
             'callbackRegisterFeatureFlagListener', arguments),
         true);
+  });
+
+  test('allFlags', () async {
+    Map<String, dynamic> response = await launchdarklyFlutter.allFlags();
+
+    expect(response['flagKey'], true);
   });
 }

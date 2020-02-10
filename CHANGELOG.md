@@ -1,6 +1,10 @@
+## 0.3.0
+
+* Adding all flags support.
+
 ## 0.2.0
 
-* Adding real-time updates support.
+* Adding real-time updates support for feature flags.
 
 ## 0.1.7
 
