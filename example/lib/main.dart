@@ -12,7 +12,12 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   bool _shouldShow = false;
+  bool _listenerRegistered = false;
   LaunchdarklyFlutter launchdarklyFlutter;
+
+  String mobileKey = 'YOUR_MOBILE_KEY';
+  String userId = 'USER_ID';
+  String flagKey = 'FLAG_KEY';
 
   @override
   void initState() {
@@ -27,7 +32,7 @@ class _MyAppState extends State<MyApp> {
     launchdarklyFlutter = LaunchdarklyFlutter();
 
     try {
-      await launchdarklyFlutter.init('YOUR_MOBILE_KEY', 'USER_ID');
+      await launchdarklyFlutter.init(mobileKey, userId);
     } on PlatformException {}
   }
 
@@ -45,9 +50,41 @@ class _MyAppState extends State<MyApp> {
               Text('Should show: $_shouldShow\n'),
               RaisedButton(
                 onPressed: () async {
-                  verifyFlag();
+                  _verifyFlag(flagKey);
                 },
                 child: Text('Verify'),
+              ),
+              RaisedButton(
+                onPressed: () async {
+                  if (_listenerRegistered) {
+                    try {
+                      setState(() {
+                        _listenerRegistered = false;
+                      });
+                      await launchdarklyFlutter
+                          .unregisterFeatureFlagListener(flagKey);
+                    } on PlatformException {
+                      setState(() {
+                        _listenerRegistered = true;
+                      });
+                    }
+                  } else {
+                    try {
+                      setState(() {
+                        _listenerRegistered = true;
+                      });
+                      await launchdarklyFlutter.registerFeatureFlagListener(
+                          flagKey, _verifyFlag);
+                    } on PlatformException {
+                      setState(() {
+                        _listenerRegistered = false;
+                      });
+                    }
+                  }
+                },
+                child: Text(_listenerRegistered
+                    ? 'Unregister listener'
+                    : 'Register listener'),
               ),
             ],
           ),
@@ -56,14 +93,13 @@ class _MyAppState extends State<MyApp> {
     );
   }
 
-  void verifyFlag() async {
-    bool shouldShowButton;
+  void _verifyFlag(String flagKey) async {
+    bool shouldShow;
     // Platform messages may fail, so we use a try/catch PlatformException.
     try {
-      shouldShowButton =
-          await launchdarklyFlutter.boolVariation('FLAG_KEY', false);
+      shouldShow = await launchdarklyFlutter.boolVariation(flagKey, false);
     } on PlatformException {
-      shouldShowButton = false;
+      shouldShow = false;
     }
 
     // If the widget was removed from the tree while the asynchronous platform
@@ -72,7 +108,7 @@ class _MyAppState extends State<MyApp> {
     if (!mounted) return;
 
     setState(() {
-      _shouldShow = shouldShowButton;
+      _shouldShow = shouldShow;
     });
   }
 }

@@ -20,7 +20,7 @@ Import `package:launchdarkly_flutter/launchdarkly_flutter.dart`, instantiate `La
 
 ### Android integration
 
-Because LaunchDarkly Android's SDK (`com.launchdarkly:launchdarkly-android-client-sdk:2.8.5`) has the attribute value set in its `<application>` element, there is a need to override it with your app's own label, if there is one (you will likely have one! :)).
+Because LaunchDarkly Android's SDK (`com.launchdarkly:launchdarkly-android-client-sdk:2.8.5`) has the label attribute value set in its `<application>` element, there is a need to override it with your app's own label, if there is one (you will likely have one! :)).
 Hence, you will need to add `tools:replace="android:label"` to the `<application>` element in your `AndroidManifest.xml`.
 
 ```xml

@@ -1,6 +1,10 @@
+## 0.2.0
+
+* Adding real-time updates support.
+
 ## 0.1.7
 
-Adding documentation on Android integration.
+* Adding documentation on Android integration.
 
 ## 0.1.6
 
