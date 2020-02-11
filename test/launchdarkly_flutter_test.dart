@@ -143,6 +143,25 @@ void main() {
     expect(flagListeners[flagKey], callback);
   });
 
+  test(
+      'registerFeatureFlagListener registering flagKey that already exists with different callback',
+      () async {
+    String flagKey = 'flagKey';
+    Function(String) callback = (flagKey) {
+      return flagKey;
+    };
+
+    await launchdarklyFlutter.registerFeatureFlagListener(flagKey, callback);
+    expect(flagListeners[flagKey], callback);
+
+    Function(String) callback2 = (flagKey) {
+      return '';
+    };
+
+    await launchdarklyFlutter.registerFeatureFlagListener(flagKey, callback2);
+    expect(flagListeners[flagKey], callback2);
+  });
+
   test('unregisterFeatureFlagListener with flagKey null', () async {
     String flagKey = 'flagKey';
     Function(String) callback = (flagKey) {
@@ -283,6 +302,25 @@ void main() {
 
     await launchdarklyFlutter.registerAllFlagsListener(listenerId, callback);
     expect(allFlagsListeners[listenerId], callback);
+  });
+
+  test(
+      'registerAllFlagsListener registering listenerId that already exists with different callback',
+      () async {
+    String listenerId = 'listenerId';
+    Function(List<String>) callback = (flagKeys) {
+      return flagKeys;
+    };
+
+    await launchdarklyFlutter.registerAllFlagsListener(listenerId, callback);
+    expect(allFlagsListeners[listenerId], callback);
+
+    Function(List<String>) callback2 = (flagKeys) {
+      return '';
+    };
+
+    await launchdarklyFlutter.registerAllFlagsListener(listenerId, callback2);
+    expect(allFlagsListeners[listenerId], callback2);
   });
 
   test('unregisterAllFlagsListener with listenerId null', () async {
