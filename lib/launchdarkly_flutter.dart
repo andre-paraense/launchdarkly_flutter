@@ -23,6 +23,10 @@ class LaunchdarklyFlutter {
   Future<dynamic> handlerMethodCalls(MethodCall call) async {
     switch (call.method) {
       case 'callbackRegisterFeatureFlagListener':
+        if (call.arguments == null) {
+          return false;
+        }
+
         if (!call.arguments.containsKey('flagKey')) {
           return false;
         }
@@ -38,11 +42,15 @@ class LaunchdarklyFlutter {
         return true;
 
       case 'callbackAllFlagsListener':
+        if (call.arguments == null) {
+          return false;
+        }
+
         if (!call.arguments.containsKey('flagKeys')) {
           return false;
         }
 
-        List<String> flagKeys = call.arguments['flagKeys'];
+        List<String> flagKeys = List<String>.from(call.arguments['flagKeys']);
 
         if (allFlagsListeners.isEmpty) {
           return false;
