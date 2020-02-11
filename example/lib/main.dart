@@ -17,9 +17,9 @@ class _MyAppState extends State<MyApp> {
   bool _listenerAllFlagsRegistered = false;
   LaunchdarklyFlutter launchdarklyFlutter;
 
-  String mobileKey = 'mob-6924202b-5eb3-4eb7-b665-0b74c7720960';
-  String userId = '1';
-  String flagKey = 'w-0-on-the-app';
+  String mobileKey = 'YOUR_MOBILE_KEY';
+  String userId = 'USER_ID';
+  String flagKey = 'FLAG_KEY';
 
   @override
   void initState() {

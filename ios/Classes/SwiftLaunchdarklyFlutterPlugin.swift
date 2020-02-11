@@ -91,7 +91,9 @@ import LaunchDarkly
         LDClient.shared.observe(keys: [flagKey], owner: flagObserverOwner, handler: { (changedFlags) in
             if changedFlags[flagKey] != nil {
                 let flagKeyMap = ["flagKey": flagKey]
-                FlutterChannel.shared.channel?.invokeMethod("callbackRegisterFeatureFlagListener", arguments: flagKeyMap)
+                DispatchQueue.main.async {
+                  FlutterChannel.shared.channel?.invokeMethod("callbackRegisterFeatureFlagListener", arguments: flagKeyMap)
+                }
             }
         })
         
@@ -123,7 +125,9 @@ import LaunchDarkly
                 allFlagsChanged.append(key)
             }
             let flagKeyMap = ["flagKeys": allFlagsChanged]
-            FlutterChannel.shared.channel?.invokeMethod("callbackAllFlagsListener", arguments: flagKeyMap)
+            DispatchQueue.main.async {
+              FlutterChannel.shared.channel?.invokeMethod("callbackAllFlagsListener", arguments: flagKeyMap)
+            }
         }
         
         FlutterChannel.shared.listeners[listenerId] = allFlagsObserverOwner;

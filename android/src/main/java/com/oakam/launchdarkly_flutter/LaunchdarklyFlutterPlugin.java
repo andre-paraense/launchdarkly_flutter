@@ -1,6 +1,9 @@
 package com.oakam.launchdarkly_flutter;
 
 import android.app.Activity;
+import android.os.Handler;
+import android.os.Looper;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 
@@ -136,11 +139,19 @@ public class LaunchdarklyFlutterPlugin implements FlutterPlugin, ActivityAware, 
 
       FeatureFlagChangeListener listener = new FeatureFlagChangeListener() {
         @Override
-        public void onFeatureFlagChange(String flagKey) {
-          Map<String, String> arguments = new HashMap<>();
-          arguments.put("flagKey",flagKey);
-
-          channel.invokeMethod("callbackRegisterFeatureFlagListener",arguments);
+        public void onFeatureFlagChange(final String flagKey) {
+          new Handler(Looper.getMainLooper()).post(new Runnable() {
+            @Override
+            public void run() {
+              Map<String, String> arguments = new HashMap<>();
+              arguments.put("flagKey",flagKey);
+              try{
+                channel.invokeMethod("callbackRegisterFeatureFlagListener",arguments);
+              }catch (Exception e){
+                Log.e("FeatureFlagsListener", e.getMessage());
+              }
+            }
+          });
         }
       };
 
@@ -162,11 +173,20 @@ public class LaunchdarklyFlutterPlugin implements FlutterPlugin, ActivityAware, 
 
       LDAllFlagsListener listener = new LDAllFlagsListener() {
         @Override
-        public void onChange(List<String> flagKeys) {
-          Map<String, List<String>> arguments = new HashMap<>();
-          arguments.put("flagKeys",flagKeys);
+        public void onChange(final List<String> flagKeys) {
+          new Handler(Looper.getMainLooper()).post(new Runnable() {
+            @Override
+            public void run() {
+              Map<String, List<String>> arguments = new HashMap<>();
+              arguments.put("flagKeys",flagKeys);
 
-          channel.invokeMethod("callbackAllFlagsListener",arguments);
+              try{
+                channel.invokeMethod("callbackAllFlagsListener",arguments);
+              }catch (Exception e){
+                Log.e("callAllFlagsListener", e.getMessage());
+              }
+            }
+          });
         }
       };
 
