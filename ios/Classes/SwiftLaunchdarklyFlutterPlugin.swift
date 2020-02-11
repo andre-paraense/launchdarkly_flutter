@@ -82,7 +82,7 @@ import LaunchDarkly
                
         result(allFlags)
         
-    }else if(call.method == "registerFeatureFlagListener") {
+    } else if(call.method == "registerFeatureFlagListener") {
         
         let flagKey = arguments["flagKey"] as? String ?? ""
         
@@ -91,7 +91,9 @@ import LaunchDarkly
         LDClient.shared.observe(keys: [flagKey], owner: flagObserverOwner, handler: { (changedFlags) in
             if changedFlags[flagKey] != nil {
                 let flagKeyMap = ["flagKey": flagKey]
-                FlutterChannel.shared.channel?.invokeMethod("callbackRegisterFeatureFlagListener", arguments: flagKeyMap)
+                DispatchQueue.main.async {
+                  FlutterChannel.shared.channel?.invokeMethod("callbackRegisterFeatureFlagListener", arguments: flagKeyMap)
+                }
             }
         })
         
@@ -106,6 +108,39 @@ import LaunchDarkly
         if (FlutterChannel.shared.listeners[flagKey] != nil) {
             LDClient.shared.stopObserving(owner: FlutterChannel.shared.listeners[flagKey] ?? flagKey as LDObserverOwner)
             FlutterChannel.shared.listeners.removeValue(forKey: flagKey)
+            result(true)
+            return
+        }
+        
+        result(false)
+    } else if(call.method == "registerAllFlagsListener") {
+        
+        let listenerId = arguments["listenerId"] as? String ?? ""
+        
+        let allFlagsObserverOwner = listenerId as LDObserverOwner
+        
+        LDClient.shared.observeAll(owner: allFlagsObserverOwner) { (changedFlags) in
+            var allFlagsChanged = [String]();
+            for (key, _) in changedFlags {
+                allFlagsChanged.append(key)
+            }
+            let flagKeyMap = ["flagKeys": allFlagsChanged]
+            DispatchQueue.main.async {
+              FlutterChannel.shared.channel?.invokeMethod("callbackAllFlagsListener", arguments: flagKeyMap)
+            }
+        }
+        
+        FlutterChannel.shared.listeners[listenerId] = allFlagsObserverOwner;
+        
+        result(true)
+    
+    } else if(call.method == "unregisterAllFlagsListener") {
+        
+        let listenerId = arguments["listenerId"] as? String ?? ""
+        
+        if (FlutterChannel.shared.listeners[listenerId] != nil) {
+            LDClient.shared.stopObserving(owner: FlutterChannel.shared.listeners[listenerId] ?? listenerId as LDObserverOwner)
+            FlutterChannel.shared.listeners.removeValue(forKey: listenerId)
             result(true)
             return
         }

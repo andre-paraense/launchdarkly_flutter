@@ -1,3 +1,7 @@
+## 0.4.0
+
+* Adding all flags listener support.
+
 ## 0.3.0
 
 * Adding all flags support.

@@ -14,6 +14,7 @@ class _MyAppState extends State<MyApp> {
   bool _shouldShow = false;
   bool _listenerRegistered = false;
   Map<String, dynamic> _allFlags = {};
+  bool _listenerAllFlagsRegistered = false;
   LaunchdarklyFlutter launchdarklyFlutter;
 
   String mobileKey = 'YOUR_MOBILE_KEY';
@@ -90,9 +91,40 @@ class _MyAppState extends State<MyApp> {
               SizedBox(height: 30.0,),
               RaisedButton(
                 onPressed: () async {
-                  _verifyAllFlags();
+                  _verifyAllFlags([]);
                 },
                 child: Text('Verify all flags'),
+              ),
+              RaisedButton(
+                onPressed: () async {
+                  if (_listenerAllFlagsRegistered) {
+                    try {
+                      setState(() {
+                        _listenerAllFlagsRegistered = false;
+                      });
+                      await launchdarklyFlutter
+                          .unregisterAllFlagsListener('allFlags');
+                    } on PlatformException {
+                      setState(() {
+                        _listenerAllFlagsRegistered = true;
+                      });
+                    }
+                  } else {
+                    try {
+                      setState(() {
+                        _listenerAllFlagsRegistered = true;
+                      });
+                      await launchdarklyFlutter.registerAllFlagsListener('allFlags', _verifyAllFlags);
+                    } on PlatformException {
+                      setState(() {
+                        _listenerAllFlagsRegistered = false;
+                      });
+                    }
+                  }
+                },
+                child: Text(_listenerAllFlagsRegistered
+                    ? 'Unregister All Flags listener'
+                    : 'Register All Flags listener'),
               ),
               Text('All flags: $_allFlags\n'),
             ],
@@ -121,7 +153,7 @@ class _MyAppState extends State<MyApp> {
     });
   }
 
-  void _verifyAllFlags() async {
+  void _verifyAllFlags(List<String> flagKeys) async {
     Map<String, dynamic> allFlags;
     // Platform messages may fail, so we use a try/catch PlatformException.
     try {

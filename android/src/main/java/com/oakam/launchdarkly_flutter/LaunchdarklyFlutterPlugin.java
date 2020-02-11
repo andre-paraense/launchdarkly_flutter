@@ -1,16 +1,21 @@
 package com.oakam.launchdarkly_flutter;
 
 import android.app.Activity;
+import android.os.Handler;
+import android.os.Looper;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 
 import com.launchdarkly.android.FeatureFlagChangeListener;
+import com.launchdarkly.android.LDAllFlagsListener;
 import com.launchdarkly.android.LDClient;
 import com.launchdarkly.android.LDConfig;
 import com.launchdarkly.android.LDUser;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import io.flutter.embedding.engine.plugins.FlutterPlugin;
@@ -30,6 +35,7 @@ public class LaunchdarklyFlutterPlugin implements FlutterPlugin, ActivityAware, 
   private Activity activity;
   private LDClient ldClient;
   private Map<String, FeatureFlagChangeListener> listeners = new HashMap<>();
+  private Map<String, LDAllFlagsListener> allFlagsListeners = new HashMap<>();
 
   public LaunchdarklyFlutterPlugin() {}
 
@@ -127,23 +133,31 @@ public class LaunchdarklyFlutterPlugin implements FlutterPlugin, ActivityAware, 
       result.success(ldClient.stringVariation(flagKey,fallback));
     } else if (call.method.equals("allFlags")) {
       result.success(ldClient.allFlags());
-    }else if (call.method.equals("registerFeatureFlagListener")) {
+    } else if (call.method.equals("registerFeatureFlagListener")) {
 
       String flagKey = call.argument("flagKey");
 
       FeatureFlagChangeListener listener = new FeatureFlagChangeListener() {
         @Override
-        public void onFeatureFlagChange(String flagKey) {
-          Map<String, String> arguments = new HashMap<>();
-          arguments.put("flagKey",flagKey);
-
-          channel.invokeMethod("callbackRegisterFeatureFlagListener",arguments);
+        public void onFeatureFlagChange(final String flagKey) {
+          new Handler(Looper.getMainLooper()).post(new Runnable() {
+            @Override
+            public void run() {
+              Map<String, String> arguments = new HashMap<>();
+              arguments.put("flagKey",flagKey);
+              try{
+                channel.invokeMethod("callbackRegisterFeatureFlagListener",arguments);
+              }catch (Exception e){
+                Log.e("FeatureFlagsListener", e.getMessage());
+              }
+            }
+          });
         }
       };
 
       ldClient.registerFeatureFlagListener(flagKey, listener);
       listeners.put(flagKey, listener);
-
+      result.success(true);
     } else if (call.method.equals("unregisterFeatureFlagListener")) {
       String flagKey = call.argument("flagKey");
       if (listeners.containsKey(flagKey)) {
@@ -153,7 +167,42 @@ public class LaunchdarklyFlutterPlugin implements FlutterPlugin, ActivityAware, 
         return;
       }
       result.success(false);
-    } else {
+    } else if (call.method.equals("registerAllFlagsListener")) {
+
+      String listenerId = call.argument("listenerId");
+
+      LDAllFlagsListener listener = new LDAllFlagsListener() {
+        @Override
+        public void onChange(final List<String> flagKeys) {
+          new Handler(Looper.getMainLooper()).post(new Runnable() {
+            @Override
+            public void run() {
+              Map<String, List<String>> arguments = new HashMap<>();
+              arguments.put("flagKeys",flagKeys);
+
+              try{
+                channel.invokeMethod("callbackAllFlagsListener",arguments);
+              }catch (Exception e){
+                Log.e("callAllFlagsListener", e.getMessage());
+              }
+            }
+          });
+        }
+      };
+
+      ldClient.registerAllFlagsListener(listener);
+      allFlagsListeners.put(listenerId, listener);
+      result.success(true);
+    }  else if (call.method.equals("unregisterAllFlagsListener")) {
+      String listenerId = call.argument("listenerId");
+      if (allFlagsListeners.containsKey(listenerId)) {
+        ldClient.unregisterAllFlagsListener(allFlagsListeners.get(listenerId));
+        listeners.remove(listenerId);
+        result.success(true);
+        return;
+      }
+      result.success(false);
+    }else {
       result.notImplemented();
     }
   }
