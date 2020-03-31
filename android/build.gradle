@@ -1,5 +1,5 @@
 group 'com.oakam.launchdarkly_flutter'
-version '0.4.0'
+version '0.4.1'
 
 buildscript {
     repositories {
@@ -34,5 +34,5 @@ android {
 }
 
 dependencies {
-    implementation 'com.launchdarkly:launchdarkly-android-client-sdk:2.8.5'
+    implementation 'com.launchdarkly:launchdarkly-android-client-sdk:2.11.0'
 }
