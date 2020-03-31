@@ -4,7 +4,7 @@
 #
 Pod::Spec.new do |s|
   s.name             = 'launchdarkly_flutter'
-  s.version          = '0.4.0'
+  s.version          = '0.4.1'
   s.summary          = 'A Flutter LaunchDarkly SDK.'
   s.description      = <<-DESC
 This is an unofficial LaunchDarkly SDK for Flutter, for anyone willing to use LaunchDarkly in a Flutter app.
@@ -15,7 +15,7 @@ This is an unofficial LaunchDarkly SDK for Flutter, for anyone willing to use La
   s.source           = { :path => '.' }
   s.source_files = 'Classes/**/*'
   s.dependency 'Flutter'
-  s.dependency 'LaunchDarkly', '4.4.0'
+  s.dependency 'LaunchDarkly', '4.5.0'
   s.platform = :ios, '8.0'
 
   # Flutter.framework does not contain a i386 slice. Only x86_64 simulators are supported.
