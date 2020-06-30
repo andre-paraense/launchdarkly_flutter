@@ -85,8 +85,14 @@ void main() {
     expect(await launchdarklyFlutter.init('MOBILE_KEY', null), true);
   });
 
-  test('init with all arguments', () async {
+  test('init with mobile key and user', () async {
     expect(await launchdarklyFlutter.init('MOBILE_KEY', 'USER_ID'), true);
+  });
+
+  test('init with all arguments', () async {
+    final result = await launchdarklyFlutter
+        .init('MOBILE_KEY', 'USER_ID', custom: {'custom': 'value'});
+    expect(result, true);
   });
 
   test('boolVariation with no fallback', () async {

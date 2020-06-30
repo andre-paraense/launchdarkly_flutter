@@ -101,20 +101,31 @@ public class LaunchdarklyFlutterPlugin implements FlutterPlugin, ActivityAware, 
               .setMobileKey(mobileKey)
               .build();
 
-      LDUser user = null;
+      LDUser.Builder userBuilder = null;
 
       if(call.hasArgument("userKey")) {
         String userKey = call.argument("userKey");
 
-        user = new LDUser.Builder(userKey)
-                .build();
+        userBuilder = new LDUser.Builder(userKey);
       }else {
-        user = new LDUser.Builder("")
-                .anonymous(true)
-                .build();
+        userBuilder = new LDUser.Builder("").anonymous(true);
       }
 
-      ldClient = LDClient.init(activity.getApplication(), ldConfig, user, 5);
+      Map<String, Object> custom = call.argument("custom");
+      if (custom != null) {
+        for (String key : custom.keySet()) {
+          final Object value = custom.get(key);
+          if (value instanceof String) {
+            userBuilder.custom(key, (String) value);
+          } else if (value instanceof Number) {
+            userBuilder.custom(key, (Number) value);
+          } else if (value instanceof Boolean) {
+            userBuilder.custom(key, (Boolean) value);
+          }
+        }
+      }
+
+      ldClient = LDClient.init(activity.getApplication(), ldConfig, userBuilder.build(), 5);
 
       result.success(true);
     } else if (call.method.equals("boolVariation")) {
