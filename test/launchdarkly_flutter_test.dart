@@ -90,8 +90,17 @@ void main() {
   });
 
   test('init with all arguments', () async {
-    final result = await launchdarklyFlutter
-        .init('MOBILE_KEY', 'USER_ID', custom: {'custom': 'value'});
+    final customValues = {
+      'string': 'value',
+      'boolean': true,
+      'number': 10,
+      'null': null,
+    };
+    final result = await launchdarklyFlutter.init(
+      'MOBILE_KEY',
+      'USER_ID',
+      custom: customValues,
+    );
     expect(result, true);
   });
 
