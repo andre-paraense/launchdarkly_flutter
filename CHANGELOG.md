@@ -1,3 +1,7 @@
+## 0.5.0
+
+* Support for custom attributes (thanks to Kirill Bubochkin @ookami-kb !)
+
 ## 0.4.1
 
 * Updating LaunchDarkly Android and iOS SDKs.
