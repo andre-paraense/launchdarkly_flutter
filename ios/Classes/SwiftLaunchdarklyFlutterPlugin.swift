@@ -43,7 +43,8 @@ import LaunchDarkly
             
         }else{
             
-            let user = LDUser(key: userKey)
+            var user = LDUser(key: userKey)
+            user.custom = arguments["custom"] as? [String: Any]
             LDClient.shared.startCompleteWhenFlagsReceived(config: config, user: user)
         }
         
