@@ -2,13 +2,13 @@
 
 ![](https://github.com/andre-paraense/launchdarkly_flutter/workflows/CI/badge.svg) [![codecov](https://codecov.io/gh/andre-paraense/launchdarkly_flutter/branch/master/graph/badge.svg)](https://codecov.io/gh/andre-paraense/launchdarkly_flutter) [![License: MIT](https://img.shields.io/badge/License-LGPL3.0-green.svg)](https://opensource.org/licenses/LGPL-3.0) [![Pub](https://img.shields.io/pub/v/launchdarkly_flutter.svg)](https://pub.dartlang.org/packages/launchdarkly_flutter)
 
-This is an unofficial LaunchDarkly SDK for Flutter.
+This is a LaunchDarkly SDK for Flutter.
 
-This is a work in progress and still has many features that have not been addressed. You are welcome to [contribute](CONTRIBUTING.md).
+This is a work in progress and there are still some features that have not been addressed. You are welcome to [contribute](CONTRIBUTING.md).
 
 ## Supported versions
 
-This SDK is compatible with Flutter 1.12 and Xcode 11 and is tested in Android 28 and iOS 13. Earlier versions of this SDK are compatible with prior versions of Flutter, Android, and iOS.
+This SDK is compatible with Flutter 1.17 and Xcode 11 and is tested in Android 28 and iOS 13. Earlier versions of this SDK are compatible with prior versions of Flutter, Android, and iOS.
 
 ## Getting started
 
