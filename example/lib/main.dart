@@ -1,5 +1,6 @@
-import 'package:flutter/material.dart';
 import 'dart:async';
+
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:launchdarkly_flutter/launchdarkly_flutter.dart';
 
@@ -32,9 +33,14 @@ class _MyAppState extends State<MyApp> {
     // Platform messages may fail, so we use a try/catch PlatformException.
 
     launchdarklyFlutter = LaunchdarklyFlutter();
+    final customAttrs = {
+      'string': 'value',
+      'boolean': true,
+      'number': 10,
+    };
 
     try {
-      await launchdarklyFlutter.init(mobileKey, userId);
+      await launchdarklyFlutter.init(mobileKey, userId, custom: customAttrs);
     } on PlatformException {}
   }
 
@@ -88,7 +94,7 @@ class _MyAppState extends State<MyApp> {
                     ? 'Unregister listener'
                     : 'Register listener'),
               ),
-              SizedBox(height: 30.0,),
+              SizedBox(height: 30.0),
               RaisedButton(
                 onPressed: () async {
                   _verifyAllFlags([]);
@@ -114,7 +120,8 @@ class _MyAppState extends State<MyApp> {
                       setState(() {
                         _listenerAllFlagsRegistered = true;
                       });
-                      await launchdarklyFlutter.registerAllFlagsListener('allFlags', _verifyAllFlags);
+                      await launchdarklyFlutter.registerAllFlagsListener(
+                          'allFlags', _verifyAllFlags);
                     } on PlatformException {
                       setState(() {
                         _listenerAllFlagsRegistered = false;

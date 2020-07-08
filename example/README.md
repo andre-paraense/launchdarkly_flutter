@@ -32,3 +32,18 @@ try {
 ```
 
 Replace `FLAG_KEY` with your flag key.
+
+### Custom attributes
+
+You can pass custom attributes using `custom` argument in `init` method, e.g.:
+
+```dart
+final customAttrs = {
+  'string': 'value',
+  'boolean': true,
+  'number': 10,
+};
+await launchdarklyFlutter.init(mobileKey, userId, custom: customAttrs);
+```
+
+Your custom attributes map should have keys of type `String` and values of type `String | bool | number` (for deleting an attribute remove the key or set value to `null`).

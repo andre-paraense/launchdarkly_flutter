@@ -1,4 +1,5 @@
 import 'dart:async';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 
@@ -75,13 +76,23 @@ class LaunchdarklyFlutter {
   /// The userKey should also uniquely identify each user. You can use a primary key, an e-mail address,
   /// or a hash, as long as the same user always has the same key. We recommend using a hash if possible.
   /// You can also distinguish logged-in users from anonymous users in the SDK by leaving the userKey parameter null.
-  Future<bool> init(String mobileKey, String userKey) async {
+  /// You can pass custom arguments in [custom] map.
+  Future<bool> init(
+    String mobileKey,
+    String userKey, {
+    Map<String, dynamic> custom,
+  }) async {
     if (userKey == null) {
-      return await _channel
-          .invokeMethod('init', <String, dynamic>{'mobileKey': mobileKey});
+      return await _channel.invokeMethod('init', <String, dynamic>{
+        'mobileKey': mobileKey,
+        'custom': custom,
+      });
     } else {
-      return await _channel.invokeMethod('init',
-          <String, dynamic>{'mobileKey': mobileKey, 'userKey': userKey});
+      return await _channel.invokeMethod('init', <String, dynamic>{
+        'mobileKey': mobileKey,
+        'userKey': userKey,
+        'custom': custom,
+      });
     }
   }
 
