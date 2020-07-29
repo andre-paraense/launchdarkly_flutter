@@ -83,6 +83,16 @@ await launchdarklyFlutter.init(mobileKey, userId, custom: customAttrs);
 
 Your custom attributes map should have keys of type `String` and values of type `String | bool | number` (for deleting an attribute remove the key or set value to `null`).
 
+### Changing the User Context
+
+If your app is used by multiple users on a single device, you may want to change users and have separate flag settings for each user.
+
+You can use the identify method to switch user contexts:
+
+```dart
+await launchdarklyFlutter.identify(userId, custom: customAttrs);
+```
+
 ## Not supported yet
 
 Check LaunchDarkly's [documentation](https://docs.launchdarkly.com) for more information on the features not yet supported. We are slowly and iteratively adding more features as we use them in our own projects. You are welcome to [contribute](CONTRIBUTING.md).

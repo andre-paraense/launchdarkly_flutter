@@ -20,6 +20,21 @@ import LaunchDarkly
     
     FlutterChannel.shared.channel = channel
   }
+  
+  private func createUser(arguments: [String:Any]) -> LDUser {
+    var userKey = arguments["userKey"] as? String ?? ""
+    var isAnonymous = false
+    if (userKey.isEmpty) {
+      userKey = UUID.init().uuidString
+      isAnonymous = true
+    }
+    
+    var user = LDUser(key: userKey)
+    user.isAnonymous = isAnonymous
+    user.custom = arguments["custom"] as? [String: Any]
+    
+    return user
+  }
 
   public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult)  {
     let arguments = call.arguments as? [String:Any] ?? [:]
@@ -35,20 +50,16 @@ import LaunchDarkly
         
         let config = LDConfig(mobileKey: mobileKey ?? "")
         
-        let userKey = arguments["userKey"] as? String
+        LDClient.shared.startCompleteWhenFlagsReceived(
+          config: config,
+          user: createUser(arguments: arguments),
+          completion: { result(true) }
+        )
+    
+    } else if (call.method == "identify") {
         
-        if( (userKey ?? "").isEmpty ) {
-            
-            LDClient.shared.startCompleteWhenFlagsReceived(config: config)
-            
-        }else{
-            
-            var user = LDUser(key: userKey)
-            user.custom = arguments["custom"] as? [String: Any]
-            LDClient.shared.startCompleteWhenFlagsReceived(config: config, user: user)
-        }
-        
-        result(true)
+        LDClient.shared.identify(user: createUser(arguments: arguments), completion: { result(true) })
+    
     } else if(call.method == "boolVariation") {
         
         let flagKey = arguments["flagKey"] as? String ?? ""

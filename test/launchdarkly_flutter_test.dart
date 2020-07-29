@@ -29,6 +29,10 @@ void main() {
         }
       }
 
+      if (methodCall.method == 'identify') {
+        return true;
+      }
+
       if (methodCall.method == 'boolVariation') {
         return true;
       } else if (methodCall.method == 'boolVariationFallback') {
@@ -98,6 +102,24 @@ void main() {
     };
     final result = await launchdarklyFlutter.init(
       'MOBILE_KEY',
+      'USER_ID',
+      custom: customValues,
+    );
+    expect(result, true);
+  });
+
+  test('identify with no user', () async {
+    expect(await launchdarklyFlutter.identify(null), true);
+  });
+
+  test('identify with all arguments', () async {
+    final customValues = {
+      'string': 'value',
+      'boolean': true,
+      'number': 10,
+      'null': null,
+    };
+    final result = await launchdarklyFlutter.identify(
       'USER_ID',
       custom: customValues,
     );

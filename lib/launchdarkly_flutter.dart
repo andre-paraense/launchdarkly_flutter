@@ -96,6 +96,22 @@ class LaunchdarklyFlutter {
     }
   }
 
+  /// Changes user context.
+  ///
+  /// If your app is used by multiple users on a single device, you may want
+  /// to change users and have separate flag settings for each user.
+  /// Use this method to switch user contexts.
+  ///
+  /// [userKey] is the user id considered by LaunchDarkly for feature flag
+  /// targeting and rollouts (see [init]).
+  ///
+  /// You can pass custom arguments in [custom] map.
+  Future<bool> identify(String userKey, {Map<String, dynamic> custom}) =>
+      _channel.invokeMethod('identify', <String, dynamic>{
+        'userKey': userKey,
+        'custom': custom,
+      });
+
   /// Returns the flag value for the current user. Returns 'fallback' when one of the following occurs:
   /// - Flag is missing
   /// - The flag is not of a boolean type
