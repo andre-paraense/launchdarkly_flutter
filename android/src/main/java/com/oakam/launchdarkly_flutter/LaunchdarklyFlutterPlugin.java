@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import io.flutter.embedding.engine.plugins.FlutterPlugin;
 import io.flutter.embedding.engine.plugins.activity.ActivityAware;
@@ -85,6 +86,33 @@ public class LaunchdarklyFlutterPlugin implements FlutterPlugin, ActivityAware, 
 
   }
 
+  private LDUser createUser(@NonNull MethodCall call) {
+    LDUser.Builder userBuilder;
+
+    if (call.hasArgument("userKey")) {
+      String userKey = call.argument("userKey");
+      userBuilder = new LDUser.Builder(userKey);
+    } else {
+      userBuilder = new LDUser.Builder(UUID.randomUUID().toString()).anonymous(true);
+    }
+
+    Map<String, Object> custom = call.argument("custom");
+    if (custom != null) {
+      for (String key : custom.keySet()) {
+        final Object value = custom.get(key);
+        if (value instanceof String) {
+          userBuilder.custom(key, (String) value);
+        } else if (value instanceof Number) {
+          userBuilder.custom(key, (Number) value);
+        } else if (value instanceof Boolean) {
+          userBuilder.custom(key, (Boolean) value);
+        }
+      }
+    }
+
+    return userBuilder.build();
+  }
+
   @Override
   public void onMethodCall(@NonNull MethodCall call, @NonNull Result result) {
 
@@ -101,32 +129,11 @@ public class LaunchdarklyFlutterPlugin implements FlutterPlugin, ActivityAware, 
               .setMobileKey(mobileKey)
               .build();
 
-      LDUser.Builder userBuilder = null;
+      ldClient = LDClient.init(activity.getApplication(), ldConfig, createUser(call), 5);
 
-      if(call.hasArgument("userKey")) {
-        String userKey = call.argument("userKey");
-
-        userBuilder = new LDUser.Builder(userKey);
-      }else {
-        userBuilder = new LDUser.Builder("").anonymous(true);
-      }
-
-      Map<String, Object> custom = call.argument("custom");
-      if (custom != null) {
-        for (String key : custom.keySet()) {
-          final Object value = custom.get(key);
-          if (value instanceof String) {
-            userBuilder.custom(key, (String) value);
-          } else if (value instanceof Number) {
-            userBuilder.custom(key, (Number) value);
-          } else if (value instanceof Boolean) {
-            userBuilder.custom(key, (Boolean) value);
-          }
-        }
-      }
-
-      ldClient = LDClient.init(activity.getApplication(), ldConfig, userBuilder.build(), 5);
-
+      result.success(true);
+    } else if (call.method.equals("identify")) {
+      ldClient.identify(createUser(call));
       result.success(true);
     } else if (call.method.equals("boolVariation")) {
       String flagKey = call.argument("flagKey");

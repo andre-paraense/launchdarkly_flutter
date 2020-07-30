@@ -16,6 +16,7 @@ class _MyAppState extends State<MyApp> {
   bool _listenerRegistered = false;
   Map<String, dynamic> _allFlags = {};
   bool _listenerAllFlagsRegistered = false;
+  bool _isLoggedIn = true;
   LaunchdarklyFlutter launchdarklyFlutter;
 
   String mobileKey = 'YOUR_MOBILE_KEY';
@@ -33,15 +34,21 @@ class _MyAppState extends State<MyApp> {
     // Platform messages may fail, so we use a try/catch PlatformException.
 
     launchdarklyFlutter = LaunchdarklyFlutter();
-    final customAttrs = {
-      'string': 'value',
-      'boolean': true,
-      'number': 10,
-    };
 
     try {
-      await launchdarklyFlutter.init(mobileKey, userId, custom: customAttrs);
+      await launchdarklyFlutter.init(mobileKey, userId, custom: _customAttrs);
     } on PlatformException {}
+  }
+
+  Future<void> _onLoginToggleClick() async {
+    final isLoggedIn = !_isLoggedIn;
+    await launchdarklyFlutter.identify(
+      isLoggedIn ? userId : null,
+      custom: _customAttrs,
+    );
+    setState(() => _isLoggedIn = isLoggedIn);
+    _verifyFlag(flagKey);
+    _verifyAllFlags([]);
   }
 
   @override
@@ -55,6 +62,13 @@ class _MyAppState extends State<MyApp> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
+              Padding(
+                padding: const EdgeInsets.only(bottom: 16),
+                child: RaisedButton(
+                  onPressed: _onLoginToggleClick,
+                  child: Text(_isLoggedIn ? 'Log out' : 'Log in'),
+                ),
+              ),
               Text('Should show: $_shouldShow\n'),
               RaisedButton(
                 onPressed: () async {
@@ -179,3 +193,9 @@ class _MyAppState extends State<MyApp> {
     });
   }
 }
+
+const _customAttrs = {
+  'string': 'value',
+  'boolean': true,
+  'number': 10,
+};
