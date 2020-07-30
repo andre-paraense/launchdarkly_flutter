@@ -1,3 +1,7 @@
+## 0.6.0
+
+* Support for Changing the User Context (thanks to Kirill Bubochkin @ookami-kb !)
+
 ## 0.5.1
 
 * Support for custom attributes (thanks to Kirill Bubochkin @ookami-kb !)
