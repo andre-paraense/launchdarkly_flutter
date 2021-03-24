@@ -60,7 +60,7 @@ public class LaunchdarklyFlutterPlugin implements FlutterPlugin, ActivityAware, 
     channel = null;
 
     try {
-      if (ldClient != null)
+      if (ldClient != null){
         ldClient.close();
       }
     } catch (IOException e) {
