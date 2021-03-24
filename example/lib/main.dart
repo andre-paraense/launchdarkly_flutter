@@ -64,19 +64,19 @@ class _MyAppState extends State<MyApp> {
             children: <Widget>[
               Padding(
                 padding: const EdgeInsets.only(bottom: 16),
-                child: RaisedButton(
+                child: ElevatedButton(
                   onPressed: _onLoginToggleClick,
                   child: Text(_isLoggedIn ? 'Log out' : 'Log in'),
                 ),
               ),
               Text('Should show: $_shouldShow\n'),
-              RaisedButton(
+              ElevatedButton(
                 onPressed: () async {
                   _verifyFlag(flagKey);
                 },
                 child: Text('Verify'),
               ),
-              RaisedButton(
+              ElevatedButton(
                 onPressed: () async {
                   if (_listenerRegistered) {
                     try {
@@ -109,13 +109,13 @@ class _MyAppState extends State<MyApp> {
                     : 'Register listener'),
               ),
               SizedBox(height: 30.0),
-              RaisedButton(
+              ElevatedButton(
                 onPressed: () async {
                   _verifyAllFlags([]);
                 },
                 child: Text('Verify all flags'),
               ),
-              RaisedButton(
+              ElevatedButton(
                 onPressed: () async {
                   if (_listenerAllFlagsRegistered) {
                     try {
