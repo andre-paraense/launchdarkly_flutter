@@ -12,12 +12,12 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  bool _shouldShow = false;
+  bool? _shouldShow = false;
   bool _listenerRegistered = false;
   Map<String, dynamic> _allFlags = {};
   bool _listenerAllFlagsRegistered = false;
   bool _isLoggedIn = true;
-  LaunchdarklyFlutter launchdarklyFlutter;
+  late LaunchdarklyFlutter launchdarklyFlutter;
 
   String mobileKey = 'YOUR_MOBILE_KEY';
   String userId = 'USER_ID';
@@ -155,11 +155,11 @@ class _MyAppState extends State<MyApp> {
     );
   }
 
-  void _verifyFlag(String flagKey) async {
-    bool shouldShow;
+  void _verifyFlag(String? flagKey) async {
+    bool? shouldShow;
     // Platform messages may fail, so we use a try/catch PlatformException.
     try {
-      shouldShow = await launchdarklyFlutter.boolVariation(flagKey, false);
+      shouldShow = await launchdarklyFlutter.boolVariation(flagKey!, false);
     } on PlatformException {
       shouldShow = false;
     }
