@@ -1,3 +1,8 @@
+## 1.0.0
+
+* Migration to null safety
+* Bug fixes for an Android crash problem (thanks to Kirill Bubochkin @ookami-kb !)
+
 ## 0.6.0
 
 * Support for Changing the User Context (thanks to Kirill Bubochkin @ookami-kb !)

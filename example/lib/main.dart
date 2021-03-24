@@ -12,12 +12,12 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  bool _shouldShow = false;
+  bool? _shouldShow = false;
   bool _listenerRegistered = false;
   Map<String, dynamic> _allFlags = {};
   bool _listenerAllFlagsRegistered = false;
   bool _isLoggedIn = true;
-  LaunchdarklyFlutter launchdarklyFlutter;
+  late LaunchdarklyFlutter launchdarklyFlutter;
 
   String mobileKey = 'YOUR_MOBILE_KEY';
   String userId = 'USER_ID';
@@ -58,108 +58,111 @@ class _MyAppState extends State<MyApp> {
         appBar: AppBar(
           title: const Text('LaunchDarkly Plugin'),
         ),
-        body: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              Padding(
-                padding: const EdgeInsets.only(bottom: 16),
-                child: RaisedButton(
-                  onPressed: _onLoginToggleClick,
-                  child: Text(_isLoggedIn ? 'Log out' : 'Log in'),
+        body: SingleChildScrollView(
+          padding: EdgeInsets.all(16.0,),
+          child: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 16),
+                  child: ElevatedButton(
+                    onPressed: _onLoginToggleClick,
+                    child: Text(_isLoggedIn ? 'Log out' : 'Log in'),
+                  ),
                 ),
-              ),
-              Text('Should show: $_shouldShow\n'),
-              RaisedButton(
-                onPressed: () async {
-                  _verifyFlag(flagKey);
-                },
-                child: Text('Verify'),
-              ),
-              RaisedButton(
-                onPressed: () async {
-                  if (_listenerRegistered) {
-                    try {
-                      setState(() {
-                        _listenerRegistered = false;
-                      });
-                      await launchdarklyFlutter
-                          .unregisterFeatureFlagListener(flagKey);
-                    } on PlatformException {
-                      setState(() {
-                        _listenerRegistered = true;
-                      });
+                Text('Should show: $_shouldShow\n'),
+                ElevatedButton(
+                  onPressed: () async {
+                    _verifyFlag(flagKey);
+                  },
+                  child: Text('Verify'),
+                ),
+                ElevatedButton(
+                  onPressed: () async {
+                    if (_listenerRegistered) {
+                      try {
+                        setState(() {
+                          _listenerRegistered = false;
+                        });
+                        await launchdarklyFlutter
+                            .unregisterFeatureFlagListener(flagKey);
+                      } on PlatformException {
+                        setState(() {
+                          _listenerRegistered = true;
+                        });
+                      }
+                    } else {
+                      try {
+                        setState(() {
+                          _listenerRegistered = true;
+                        });
+                        await launchdarklyFlutter.registerFeatureFlagListener(
+                            flagKey, _verifyFlag);
+                      } on PlatformException {
+                        setState(() {
+                          _listenerRegistered = false;
+                        });
+                      }
                     }
-                  } else {
-                    try {
-                      setState(() {
-                        _listenerRegistered = true;
-                      });
-                      await launchdarklyFlutter.registerFeatureFlagListener(
-                          flagKey, _verifyFlag);
-                    } on PlatformException {
-                      setState(() {
-                        _listenerRegistered = false;
-                      });
+                  },
+                  child: Text(_listenerRegistered
+                      ? 'Unregister listener'
+                      : 'Register listener'),
+                ),
+                SizedBox(height: 30.0),
+                ElevatedButton(
+                  onPressed: () async {
+                    _verifyAllFlags([]);
+                  },
+                  child: Text('Verify all flags'),
+                ),
+                ElevatedButton(
+                  onPressed: () async {
+                    if (_listenerAllFlagsRegistered) {
+                      try {
+                        setState(() {
+                          _listenerAllFlagsRegistered = false;
+                        });
+                        await launchdarklyFlutter
+                            .unregisterAllFlagsListener('allFlags');
+                      } on PlatformException {
+                        setState(() {
+                          _listenerAllFlagsRegistered = true;
+                        });
+                      }
+                    } else {
+                      try {
+                        setState(() {
+                          _listenerAllFlagsRegistered = true;
+                        });
+                        await launchdarklyFlutter.registerAllFlagsListener(
+                            'allFlags', _verifyAllFlags);
+                      } on PlatformException {
+                        setState(() {
+                          _listenerAllFlagsRegistered = false;
+                        });
+                      }
                     }
-                  }
-                },
-                child: Text(_listenerRegistered
-                    ? 'Unregister listener'
-                    : 'Register listener'),
-              ),
-              SizedBox(height: 30.0),
-              RaisedButton(
-                onPressed: () async {
-                  _verifyAllFlags([]);
-                },
-                child: Text('Verify all flags'),
-              ),
-              RaisedButton(
-                onPressed: () async {
-                  if (_listenerAllFlagsRegistered) {
-                    try {
-                      setState(() {
-                        _listenerAllFlagsRegistered = false;
-                      });
-                      await launchdarklyFlutter
-                          .unregisterAllFlagsListener('allFlags');
-                    } on PlatformException {
-                      setState(() {
-                        _listenerAllFlagsRegistered = true;
-                      });
-                    }
-                  } else {
-                    try {
-                      setState(() {
-                        _listenerAllFlagsRegistered = true;
-                      });
-                      await launchdarklyFlutter.registerAllFlagsListener(
-                          'allFlags', _verifyAllFlags);
-                    } on PlatformException {
-                      setState(() {
-                        _listenerAllFlagsRegistered = false;
-                      });
-                    }
-                  }
-                },
-                child: Text(_listenerAllFlagsRegistered
-                    ? 'Unregister All Flags listener'
-                    : 'Register All Flags listener'),
-              ),
-              Text('All flags: $_allFlags\n'),
-            ],
+                  },
+                  child: Text(_listenerAllFlagsRegistered
+                      ? 'Unregister All Flags listener'
+                      : 'Register All Flags listener'),
+                ),
+                Text('All flags: $_allFlags\n'),
+              ],
+            ),
           ),
         ),
       ),
     );
   }
 
-  void _verifyFlag(String flagKey) async {
-    bool shouldShow;
+  void _verifyFlag(String? flagKey) async {
+    bool? shouldShow;
     // Platform messages may fail, so we use a try/catch PlatformException.
     try {
-      shouldShow = await launchdarklyFlutter.boolVariation(flagKey, false);
+      shouldShow = await launchdarklyFlutter.boolVariation(flagKey!, false);
     } on PlatformException {
       shouldShow = false;
     }

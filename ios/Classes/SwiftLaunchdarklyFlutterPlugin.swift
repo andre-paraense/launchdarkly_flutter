@@ -50,21 +50,18 @@ import LaunchDarkly
         
         let config = LDConfig(mobileKey: mobileKey ?? "")
         
-        LDClient.shared.startCompleteWhenFlagsReceived(
-          config: config,
-          user: createUser(arguments: arguments),
-          completion: { result(true) }
-        )
-    
-    } else if (call.method == "identify") {
+        LDClient.start(config: config, user: createUser(arguments: arguments), startWaitSeconds: 5) { timedOut in
+            result(true)
+        }
         
-        LDClient.shared.identify(user: createUser(arguments: arguments), completion: { result(true) })
+    } else if (call.method == "identify") {
+        LDClient.get()!.identify(user: createUser(arguments: arguments), completion: { result(true) })
     
     } else if(call.method == "boolVariation") {
         
         let flagKey = arguments["flagKey"] as? String ?? ""
         
-        result(LDClient.shared.variation(forKey: flagKey, fallback: false))
+        result(LDClient.get()!.variation(forKey: flagKey, defaultValue: false))
 
     } else if (call.method == "boolVariationFallback") {
         
@@ -72,13 +69,13 @@ import LaunchDarkly
         
         let fallback = arguments["fallback"] as? Bool ?? false
         
-        result(LDClient.shared.variation(forKey: flagKey, fallback: fallback) as Bool)
+        result(LDClient.get()!.variation(forKey: flagKey, defaultValue: fallback) as Bool)
 
     } else if(call.method == "stringVariation") {
         
         let flagKey = arguments["flagKey"] as? String ?? ""
         
-        result(LDClient.shared.variation(forKey: flagKey, fallback: ""))
+        result(LDClient.get()!.variation(forKey: flagKey, defaultValue: ""))
 
     } else if(call.method == "stringVariationFallback") {
         
@@ -86,11 +83,11 @@ import LaunchDarkly
                
         let fallback = arguments["fallback"] as? String ?? ""
                
-        result(LDClient.shared.variation(forKey: flagKey, fallback: fallback) as String)
+        result(LDClient.get()!.variation(forKey: flagKey, defaultValue: fallback) as String)
         
     } else if(call.method == "allFlags") {
         
-        let allFlags = LDClient.shared.allFlagValues ?? [:]
+        let allFlags = LDClient.get()!.allFlags ?? [:]
                
         result(allFlags)
         
@@ -100,7 +97,7 @@ import LaunchDarkly
         
         let flagObserverOwner = flagKey as LDObserverOwner
 
-        LDClient.shared.observe(keys: [flagKey], owner: flagObserverOwner, handler: { (changedFlags) in
+        LDClient.get()!.observe(keys: [flagKey], owner: flagObserverOwner, handler: { (changedFlags) in
             if changedFlags[flagKey] != nil {
                 let flagKeyMap = ["flagKey": flagKey]
                 DispatchQueue.main.async {
@@ -118,7 +115,7 @@ import LaunchDarkly
         let flagKey = arguments["flagKey"] as? String ?? ""
         
         if (FlutterChannel.shared.listeners[flagKey] != nil) {
-            LDClient.shared.stopObserving(owner: FlutterChannel.shared.listeners[flagKey] ?? flagKey as LDObserverOwner)
+            LDClient.get()!.stopObserving(owner: FlutterChannel.shared.listeners[flagKey] ?? flagKey as LDObserverOwner)
             FlutterChannel.shared.listeners.removeValue(forKey: flagKey)
             result(true)
             return
@@ -131,7 +128,7 @@ import LaunchDarkly
         
         let allFlagsObserverOwner = listenerId as LDObserverOwner
         
-        LDClient.shared.observeAll(owner: allFlagsObserverOwner) { (changedFlags) in
+        LDClient.get()!.observeAll(owner: allFlagsObserverOwner) { (changedFlags) in
             var allFlagsChanged = [String]();
             for (key, _) in changedFlags {
                 allFlagsChanged.append(key)
@@ -151,7 +148,7 @@ import LaunchDarkly
         let listenerId = arguments["listenerId"] as? String ?? ""
         
         if (FlutterChannel.shared.listeners[listenerId] != nil) {
-            LDClient.shared.stopObserving(owner: FlutterChannel.shared.listeners[listenerId] ?? listenerId as LDObserverOwner)
+            LDClient.get()!.stopObserving(owner: FlutterChannel.shared.listeners[listenerId] ?? listenerId as LDObserverOwner)
             FlutterChannel.shared.listeners.removeValue(forKey: listenerId)
             result(true)
             return

@@ -6,10 +6,6 @@ This is a LaunchDarkly SDK for Flutter.
 
 This is a work in progress and there are still some features that have not been addressed. You are welcome to [contribute](CONTRIBUTING.md).
 
-## Supported versions
-
-This SDK is compatible with Flutter 1.17 and Xcode 11 and is tested in Android 28 and iOS 13. Earlier versions of this SDK are compatible with prior versions of Flutter, Android, and iOS.
-
 ## Getting started
 
 Check LaunchDarkly's [documentation](https://docs.launchdarkly.com) for in-depth instructions on configuring and using LaunchDarkly.
@@ -20,7 +16,7 @@ Import `package:launchdarkly_flutter/launchdarkly_flutter.dart`, instantiate `La
 
 ### Android integration
 
-Because LaunchDarkly Android's SDK (`com.launchdarkly:launchdarkly-android-client-sdk:2.11.0`) has the label attribute value set in its `<application>` element, there is a need to override it with your app's own label, if there is one (you will likely have one! :)).
+Because LaunchDarkly Android's SDK (`com.launchdarkly:launchdarkly-android-client-sdk:2.14.1`) has the label attribute value set in its `<application>` element, there is a need to override it with your app's own label, if there is one (you will likely have one! :)).
 Hence, you will need to add `tools:replace="android:label"` to the `<application>` element in your `AndroidManifest.xml`.
 
 ```xml

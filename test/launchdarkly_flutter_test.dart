@@ -9,9 +9,9 @@ void main() {
 
   const MethodChannel channel = MethodChannel('launchdarkly_flutter');
 
-  final Map<String, void Function(String)> flagListeners = {};
+  final Map<String, void Function(String?)>? flagListeners = {};
 
-  final Map<String, void Function(List<String>)> allFlagsListeners = {};
+  final Map<String, void Function(List<String>)>? allFlagsListeners = {};
 
   final LaunchdarklyFlutter launchdarklyFlutter = LaunchdarklyFlutter(
       flagListeners: flagListeners, allFlagsListeners: allFlagsListeners);
@@ -56,7 +56,7 @@ void main() {
       }
 
       if (methodCall.method == 'allFlags') {
-        Map<String, dynamic> response = jsonDecode('{"flagKey":true}');
+        Map<String, dynamic>? response = jsonDecode('{"flagKey":true}');
         return response;
       }
 
@@ -73,8 +73,8 @@ void main() {
   });
 
   tearDown(() {
-    flagListeners.clear();
-    allFlagsListeners.clear();
+    flagListeners!.clear();
+    allFlagsListeners!.clear();
   });
 
   tearDownAll(() {
@@ -152,46 +152,46 @@ void main() {
   test('registerFeatureFlagListener with flagKey and callback null', () async {
     String flagKey = 'flagKey';
     await launchdarklyFlutter.registerFeatureFlagListener(null, null);
-    expect(flagListeners[flagKey], null);
+    expect(flagListeners![flagKey], null);
   });
 
   test('registerFeatureFlagListener with callback null', () async {
     String flagKey = 'flagKey';
     await launchdarklyFlutter.registerFeatureFlagListener(flagKey, null);
-    expect(flagListeners[flagKey], null);
+    expect(flagListeners![flagKey], null);
   });
 
   test('registerFeatureFlagListener with flagKey null', () async {
     String flagKey = 'flagKey';
-    void Function(String) callback = (flagKey) {};
+    void Function(String?) callback = (flagKey) {};
 
     await launchdarklyFlutter.registerFeatureFlagListener(null, callback);
-    expect(flagListeners[flagKey], null);
+    expect(flagListeners![flagKey], null);
   });
 
   test('registerFeatureFlagListener registering flagKey with callback',
       () async {
     String flagKey = 'flagKey';
-    Function(String) callback = (flagKey) {
+    Function(String?) callback = (flagKey) {
       return flagKey;
     };
 
     await launchdarklyFlutter.registerFeatureFlagListener(flagKey, callback);
-    expect(flagListeners[flagKey], callback);
+    expect(flagListeners![flagKey], callback);
   });
 
   test(
       'registerFeatureFlagListener registering flagKey that already exists with different callback',
       () async {
     String flagKey = 'flagKey';
-    Function(String) callback = (flagKey) {
+    Function(String?) callback = (flagKey) {
       return flagKey;
     };
 
     await launchdarklyFlutter.registerFeatureFlagListener(flagKey, callback);
-    expect(flagListeners[flagKey], callback);
+    expect(flagListeners![flagKey], callback);
 
-    Function(String) callback2 = (flagKey) {
+    Function(String?) callback2 = (flagKey) {
       return '';
     };
 
@@ -201,22 +201,22 @@ void main() {
 
   test('unregisterFeatureFlagListener with flagKey null', () async {
     String flagKey = 'flagKey';
-    Function(String) callback = (flagKey) {
+    Function(String?) callback = (flagKey) {
       return 'callback';
     };
     await launchdarklyFlutter.registerFeatureFlagListener(flagKey, callback);
-    expect(flagListeners[flagKey], callback);
+    expect(flagListeners![flagKey], callback);
     await launchdarklyFlutter.unregisterFeatureFlagListener(null);
     expect(flagListeners[flagKey], callback);
   });
 
   test('unregisterFeatureFlagListener flagKey', () async {
     String flagKey = 'flagKey';
-    Function(String) callback = (flagKey) {
+    Function(String?) callback = (flagKey) {
       return 'callback';
     };
     await launchdarklyFlutter.registerFeatureFlagListener(flagKey, callback);
-    expect(flagListeners[flagKey], callback);
+    expect(flagListeners![flagKey], callback);
     await launchdarklyFlutter.unregisterFeatureFlagListener(flagKey);
     expect(flagListeners[flagKey], null);
   });
@@ -239,12 +239,12 @@ void main() {
       'registerFeatureFlagListener callback for existing callbackRegisterFeatureFlagListener method without arguments',
       () async {
     String flagKey = 'flagKey';
-    Function(String) callback = (flagKey) {
+    Function(String?) callback = (flagKey) {
       return flagKey;
     };
 
     await launchdarklyFlutter.registerFeatureFlagListener(flagKey, callback);
-    expect(flagListeners[flagKey], callback);
+    expect(flagListeners![flagKey], callback);
 
     expect(
         await channel.invokeMethod('callbackRegisterFeatureFlagListener', null),
@@ -255,12 +255,12 @@ void main() {
       'registerFeatureFlagListener callback for existing callbackRegisterFeatureFlagListener with no flagKey argument',
       () async {
     String flagKey = 'flagKey';
-    Function(String) callback = (flagKey) {
+    Function(String?) callback = (flagKey) {
       return flagKey;
     };
 
     await launchdarklyFlutter.registerFeatureFlagListener(flagKey, callback);
-    expect(flagListeners[flagKey], callback);
+    expect(flagListeners![flagKey], callback);
 
     Map<String, String> arguments = {};
 
@@ -274,12 +274,12 @@ void main() {
       'registerFeatureFlagListener callback for existing callbackRegisterFeatureFlagListener method with wrong flagKey',
       () async {
     String flagKey = 'flagKey';
-    Function(String) callback = (flagKey) {
+    Function(String?) callback = (flagKey) {
       return flagKey;
     };
 
     await launchdarklyFlutter.registerFeatureFlagListener(flagKey, callback);
-    expect(flagListeners[flagKey], callback);
+    expect(flagListeners![flagKey], callback);
 
     Map<String, String> arguments = {};
     arguments['flagKey'] = 'wrong-flag-key';
@@ -294,12 +294,12 @@ void main() {
       'registerFeatureFlagListener callback for existing callbackRegisterFeatureFlagListener method with correct flagKey',
       () async {
     String flagKey = 'flagKey';
-    Function(String) callback = (flagKey) {
+    Function(String?) callback = (flagKey) {
       return flagKey;
     };
 
     await launchdarklyFlutter.registerFeatureFlagListener(flagKey, callback);
-    expect(flagListeners[flagKey], callback);
+    expect(flagListeners![flagKey], callback);
 
     Map<String, String> arguments = {};
     arguments['flagKey'] = flagKey;
@@ -319,7 +319,7 @@ void main() {
   test('registerAllFlagsListener with callback null', () async {
     String listenerId = 'listenerId';
     await launchdarklyFlutter.registerAllFlagsListener(listenerId, null);
-    expect(allFlagsListeners[listenerId], null);
+    expect(allFlagsListeners![listenerId], null);
   });
 
   test('registerAllFlagsListener with listenerId null', () async {
@@ -327,7 +327,7 @@ void main() {
     void Function(List<String>) callback = (flagKeys) {};
 
     await launchdarklyFlutter.registerAllFlagsListener(null, callback);
-    expect(allFlagsListeners[listenerId], null);
+    expect(allFlagsListeners![listenerId], null);
   });
 
   test('registerAllFlagsListener registering listenerId with callback',
@@ -338,7 +338,7 @@ void main() {
     };
 
     await launchdarklyFlutter.registerAllFlagsListener(listenerId, callback);
-    expect(allFlagsListeners[listenerId], callback);
+    expect(allFlagsListeners![listenerId], callback);
   });
 
   test(
@@ -350,7 +350,7 @@ void main() {
     };
 
     await launchdarklyFlutter.registerAllFlagsListener(listenerId, callback);
-    expect(allFlagsListeners[listenerId], callback);
+    expect(allFlagsListeners![listenerId], callback);
 
     Function(List<String>) callback2 = (flagKeys) {
       return '';
@@ -366,7 +366,7 @@ void main() {
       return 'callback';
     };
     await launchdarklyFlutter.registerAllFlagsListener(listenerId, callback);
-    expect(allFlagsListeners[listenerId], callback);
+    expect(allFlagsListeners![listenerId], callback);
     await launchdarklyFlutter.unregisterAllFlagsListener(null);
     expect(allFlagsListeners[listenerId], callback);
   });
@@ -377,7 +377,7 @@ void main() {
       return flagKeys;
     };
     await launchdarklyFlutter.registerAllFlagsListener(listenerId, callback);
-    expect(allFlagsListeners[listenerId], callback);
+    expect(allFlagsListeners![listenerId], callback);
     await launchdarklyFlutter.unregisterAllFlagsListener(listenerId);
     expect(allFlagsListeners[listenerId], null);
   });
@@ -391,7 +391,7 @@ void main() {
     };
 
     await launchdarklyFlutter.registerAllFlagsListener(listenerId, callback);
-    expect(allFlagsListeners[listenerId], callback);
+    expect(allFlagsListeners![listenerId], callback);
 
     expect(await channel.invokeMethod('callbackAllFlagsListener', null), false);
   });
@@ -415,7 +415,7 @@ void main() {
     };
 
     await launchdarklyFlutter.registerAllFlagsListener(listenerId, callback);
-    expect(allFlagsListeners[listenerId], callback);
+    expect(allFlagsListeners![listenerId], callback);
 
     Map<String, List<String>> arguments = {};
     arguments['flagKeys'] = ['flagKey1', 'flagKey2'];
