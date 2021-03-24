@@ -5,8 +5,8 @@ import 'package:flutter/services.dart';
 
 /// Client for accessing LaunchDarkly's Feature Flag system.
 class LaunchdarklyFlutter {
-  Map<String, void Function(String)> flagListeners;
-  Map<String, void Function(List<String>)> allFlagsListeners;
+  Map<String, void Function(String?)>? flagListeners;
+  Map<String, void Function(List<String>)>? allFlagsListeners;
   static const MethodChannel _channel =
       const MethodChannel('launchdarkly_flutter');
 
@@ -32,13 +32,13 @@ class LaunchdarklyFlutter {
           return false;
         }
 
-        String flagKey = call.arguments['flagKey'];
+        String? flagKey = call.arguments['flagKey'];
 
-        if (!flagListeners.containsKey(flagKey)) {
+        if (!flagListeners!.containsKey(flagKey)) {
           return false;
         }
 
-        Function(String) listener = flagListeners[flagKey];
+        Function(String?)? listener = flagListeners![flagKey!];
         if (listener != null) listener(flagKey);
         return true;
 
@@ -53,12 +53,12 @@ class LaunchdarklyFlutter {
 
         List<String> flagKeys = List<String>.from(call.arguments['flagKeys']);
 
-        if (allFlagsListeners.isEmpty) {
+        if (allFlagsListeners!.isEmpty) {
           return false;
         }
 
-        allFlagsListeners.values.forEach((allFlagsListener) {
-          if (allFlagsListener != null) allFlagsListener(flagKeys);
+        allFlagsListeners!.values.forEach((allFlagsListener) {
+          allFlagsListener(flagKeys);
         });
 
         return true;
@@ -77,10 +77,10 @@ class LaunchdarklyFlutter {
   /// or a hash, as long as the same user always has the same key. We recommend using a hash if possible.
   /// You can also distinguish logged-in users from anonymous users in the SDK by leaving the userKey parameter null.
   /// You can pass custom arguments in [custom] map.
-  Future<bool> init(
-    String mobileKey,
-    String userKey, {
-    Map<String, dynamic> custom,
+  Future<bool?> init(
+    String? mobileKey,
+    String? userKey, {
+    Map<String, dynamic>? custom,
   }) async {
     if (userKey == null) {
       return await _channel.invokeMethod('init', <String, dynamic>{
@@ -106,7 +106,7 @@ class LaunchdarklyFlutter {
   /// targeting and rollouts (see [init]).
   ///
   /// You can pass custom arguments in [custom] map.
-  Future<bool> identify(String userKey, {Map<String, dynamic> custom}) =>
+  Future<bool?> identify(String? userKey, {Map<String, dynamic>? custom}) =>
       _channel.invokeMethod('identify', <String, dynamic>{
         'userKey': userKey,
         'custom': custom,
@@ -118,7 +118,7 @@ class LaunchdarklyFlutter {
   /// - Any other error
   /// [flagKey] key for the flag to evaluate
   /// [fallback] fallback value in case of errors evaluating the flag
-  Future<bool> boolVariation(String flagKey, bool fallback) async {
+  Future<bool?> boolVariation(String flagKey, bool? fallback) async {
     if (fallback == null) {
       return await _channel
           .invokeMethod('boolVariation', <String, dynamic>{'flagKey': flagKey});
@@ -134,7 +134,7 @@ class LaunchdarklyFlutter {
   /// - Any other error
   /// [flagKey] key for the flag to evaluate
   /// [fallback] fallback value in case of errors evaluating the flag
-  Future<String> stringVariation(String flagKey, String fallback) async {
+  Future<String?> stringVariation(String flagKey, String? fallback) async {
     if (fallback == null) {
       return await _channel.invokeMethod(
           'stringVariation', <String, dynamic>{'flagKey': flagKey});
@@ -149,18 +149,18 @@ class LaunchdarklyFlutter {
   ///
   /// [flagKey]  the flag key to attach the listener to
   /// [callback] the listener to attach to the flag key
-  Future<bool> registerFeatureFlagListener(
-      String flagKey, void Function(String) callback) async {
+  Future<bool?> registerFeatureFlagListener(
+      String? flagKey, void Function(String?)? callback) async {
     if (flagKey == null || callback == null) {
       return false;
     }
 
-    if (flagListeners.containsKey(flagKey)) {
-      flagListeners[flagKey] = callback;
+    if (flagListeners!.containsKey(flagKey)) {
+      flagListeners![flagKey] = callback;
       return true;
     }
 
-    flagListeners[flagKey] = callback;
+    flagListeners![flagKey] = callback;
     return await _channel.invokeMethod(
         'registerFeatureFlagListener', <String, dynamic>{'flagKey': flagKey});
   }
@@ -168,16 +168,16 @@ class LaunchdarklyFlutter {
   /// Unregisters the existing callback for the flagKey.
   ///
   /// [flagKey] the flag key to remove the listener from
-  Future<bool> unregisterFeatureFlagListener(String flagKey) async {
+  Future<bool?> unregisterFeatureFlagListener(String? flagKey) async {
     if (flagKey == null) {
       return false;
     }
 
-    if (!flagListeners.containsKey(flagKey) || flagListeners[flagKey] == null) {
+    if (!flagListeners!.containsKey(flagKey) || flagListeners![flagKey] == null) {
       return false;
     }
 
-    flagListeners.remove(flagKey);
+    flagListeners!.remove(flagKey);
     return await _channel.invokeMethod(
         'unregisterFeatureFlagListener', <String, dynamic>{'flagKey': flagKey});
   }
@@ -194,18 +194,18 @@ class LaunchdarklyFlutter {
   ///
   /// [listenerId]  the id to attach the listener to
   /// [callback] the listener to attach to the listenerId
-  Future<bool> registerAllFlagsListener(
-      String listenerId, void Function(List<String>) callback) async {
+  Future<bool?> registerAllFlagsListener(
+      String? listenerId, void Function(List<String>)? callback) async {
     if (listenerId == null || callback == null) {
       return false;
     }
 
-    if (allFlagsListeners.containsKey(listenerId)) {
-      allFlagsListeners[listenerId] = callback;
+    if (allFlagsListeners!.containsKey(listenerId)) {
+      allFlagsListeners![listenerId] = callback;
       return true;
     }
 
-    allFlagsListeners[listenerId] = callback;
+    allFlagsListeners![listenerId] = callback;
     return await _channel.invokeMethod('registerAllFlagsListener',
         <String, dynamic>{'listenerId': listenerId});
   }
@@ -213,17 +213,17 @@ class LaunchdarklyFlutter {
   /// Unregisters a callback so it will no longer be called on flag updates.
   ///
   /// [listenerId] the id to remove the listener from
-  Future<bool> unregisterAllFlagsListener(String listenerId) async {
+  Future<bool?> unregisterAllFlagsListener(String? listenerId) async {
     if (listenerId == null) {
       return false;
     }
 
-    if (!allFlagsListeners.containsKey(listenerId) ||
-        allFlagsListeners[listenerId] == null) {
+    if (!allFlagsListeners!.containsKey(listenerId) ||
+        allFlagsListeners![listenerId] == null) {
       return false;
     }
 
-    allFlagsListeners.remove(listenerId);
+    allFlagsListeners!.remove(listenerId);
     return await _channel.invokeMethod('unregisterAllFlagsListener',
         <String, dynamic>{'listenerId': listenerId});
   }
