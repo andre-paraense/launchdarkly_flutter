@@ -1,3 +1,7 @@
+## 1.0.1
+
+* Bumping LaunchDarkly Android and iOS SDKs
+
 ## 1.0.0
 
 * Migration to null safety

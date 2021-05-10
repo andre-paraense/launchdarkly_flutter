@@ -7,11 +7,11 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 
-import com.launchdarkly.android.FeatureFlagChangeListener;
-import com.launchdarkly.android.LDAllFlagsListener;
-import com.launchdarkly.android.LDClient;
-import com.launchdarkly.android.LDConfig;
-import com.launchdarkly.android.LDUser;
+import com.launchdarkly.sdk.android.FeatureFlagChangeListener;
+import com.launchdarkly.sdk.android.LDAllFlagsListener;
+import com.launchdarkly.sdk.android.LDClient;
+import com.launchdarkly.sdk.android.LDConfig;
+import com.launchdarkly.sdk.LDUser;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -104,9 +104,11 @@ public class LaunchdarklyFlutterPlugin implements FlutterPlugin, ActivityAware, 
         final Object value = custom.get(key);
         if (value instanceof String) {
           userBuilder.custom(key, (String) value);
-        } else if (value instanceof Number) {
-          userBuilder.custom(key, (Number) value);
-        } else if (value instanceof Boolean) {
+        } else if (value instanceof Integer) {
+          userBuilder.custom(key, (Integer) value);
+        } else if (value instanceof Double) {
+          userBuilder.custom(key, (Double) value);
+       } else if (value instanceof Boolean) {
           userBuilder.custom(key, (Boolean) value);
         }
       }
@@ -128,7 +130,7 @@ public class LaunchdarklyFlutterPlugin implements FlutterPlugin, ActivityAware, 
       }
 
       LDConfig ldConfig = new LDConfig.Builder()
-              .setMobileKey(mobileKey)
+              .mobileKey(mobileKey)
               .build();
 
       ldClient = LDClient.init(activity.getApplication(), ldConfig, createUser(call), 5);
@@ -139,7 +141,7 @@ public class LaunchdarklyFlutterPlugin implements FlutterPlugin, ActivityAware, 
       result.success(true);
     } else if (call.method.equals("boolVariation")) {
       String flagKey = call.argument("flagKey");
-      result.success(ldClient.boolVariation(flagKey,null));
+      result.success(ldClient.boolVariation(flagKey,false));
     } else if (call.method.equals("boolVariationFallback")) {
       String flagKey = call.argument("flagKey");
       Boolean fallback = call.argument("fallback");
