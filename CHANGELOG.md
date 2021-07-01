@@ -1,3 +1,7 @@
+## 1.0.2
+
+* Bug fix for verifying all flags in Android
+
 ## 1.0.1
 
 * Bumping LaunchDarkly Android and iOS SDKs

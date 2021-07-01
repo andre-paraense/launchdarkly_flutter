@@ -14,7 +14,7 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   bool? _shouldShow = false;
   bool _listenerRegistered = false;
-  Map<String, dynamic> _allFlags = {};
+  String _allFlagsString = '';
   bool _listenerAllFlagsRegistered = false;
   bool _isLoggedIn = true;
   late LaunchdarklyFlutter launchdarklyFlutter;
@@ -59,7 +59,9 @@ class _MyAppState extends State<MyApp> {
           title: const Text('LaunchDarkly Plugin'),
         ),
         body: SingleChildScrollView(
-          padding: EdgeInsets.all(16.0,),
+          padding: EdgeInsets.all(
+            16.0,
+          ),
           child: Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -71,7 +73,7 @@ class _MyAppState extends State<MyApp> {
                     child: Text(_isLoggedIn ? 'Log out' : 'Log in'),
                   ),
                 ),
-                Text('Should show: $_shouldShow\n'),
+                Text('$flagKey: $_shouldShow\n'),
                 ElevatedButton(
                   onPressed: () async {
                     _verifyFlag(flagKey);
@@ -149,7 +151,7 @@ class _MyAppState extends State<MyApp> {
                       ? 'Unregister All Flags listener'
                       : 'Register All Flags listener'),
                 ),
-                Text('All flags: $_allFlags\n'),
+                Text('All flags:\n\n$_allFlagsString\n\n'),
               ],
             ),
           ),
@@ -185,14 +187,15 @@ class _MyAppState extends State<MyApp> {
     } on PlatformException {
       allFlags = {};
     }
-
+    String allFlagsString = '';
+    allFlags.forEach((key, value) => allFlagsString += '$key: $value\n');
     // If the widget was removed from the tree while the asynchronous platform
     // message was in flight, we want to discard the reply rather than calling
     // setState to update our non-existent appearance.
     if (!mounted) return;
 
     setState(() {
-      _allFlags = allFlags;
+      _allFlagsString = allFlagsString;
     });
   }
 }
