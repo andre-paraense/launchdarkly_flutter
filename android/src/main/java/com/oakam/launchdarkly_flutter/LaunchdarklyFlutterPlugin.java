@@ -7,6 +7,7 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 
+import com.launchdarkly.sdk.LDValue;
 import com.launchdarkly.sdk.android.FeatureFlagChangeListener;
 import com.launchdarkly.sdk.android.LDAllFlagsListener;
 import com.launchdarkly.sdk.android.LDClient;
@@ -35,8 +36,8 @@ public class LaunchdarklyFlutterPlugin implements FlutterPlugin, ActivityAware, 
   private MethodChannel channel;
   private Activity activity;
   private LDClient ldClient;
-  private Map<String, FeatureFlagChangeListener> listeners = new HashMap<>();
-  private Map<String, LDAllFlagsListener> allFlagsListeners = new HashMap<>();
+  private final Map<String, FeatureFlagChangeListener> listeners = new HashMap<>();
+  private final Map<String, LDAllFlagsListener> allFlagsListeners = new HashMap<>();
 
   public LaunchdarklyFlutterPlugin() {}
 
@@ -93,7 +94,7 @@ public class LaunchdarklyFlutterPlugin implements FlutterPlugin, ActivityAware, 
 
     if (call.hasArgument("userKey")) {
       String userKey = call.argument("userKey");
-      userBuilder = new LDUser.Builder(userKey);
+      userBuilder = new LDUser.Builder(userKey).anonymous(false);
     } else {
       userBuilder = new LDUser.Builder(UUID.randomUUID().toString()).anonymous(true);
     }
@@ -154,7 +155,29 @@ public class LaunchdarklyFlutterPlugin implements FlutterPlugin, ActivityAware, 
       String fallback = call.argument("fallback");
       result.success(ldClient.stringVariation(flagKey,fallback));
     } else if (call.method.equals("allFlags")) {
-      result.success(ldClient.allFlags());
+      Map<String, LDValue> flagValues = ldClient.allFlags();
+      Map<String, Object> flagPrimitiveValues = new HashMap<>();
+      for (Map.Entry<String, LDValue> flag : flagValues.entrySet()) {
+        switch (flag.getValue().getType()) {
+          case NULL: // Do something with flag missing value
+            flagPrimitiveValues.put(flag.getKey(), null);
+            break;
+          case BOOLEAN: // Do something with boolean flag
+            flagPrimitiveValues.put(flag.getKey(), flag.getValue().booleanValue());
+            break;
+          case NUMBER:// Do something with numeric flag
+            flagPrimitiveValues.put(flag.getKey(), flag.getValue().floatValue());
+            break;
+          case STRING: // Do something with string flag
+            flagPrimitiveValues.put(flag.getKey(), flag.getValue().stringValue());
+            break;
+          case ARRAY: // Do something with array flag
+            break;
+          case OBJECT: // Do something with object flag
+            break;
+        }
+      }
+      result.success(flagPrimitiveValues);
     } else if (call.method.equals("registerFeatureFlagListener")) {
 
       String flagKey = call.argument("flagKey");
