@@ -8,7 +8,6 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 
 import com.launchdarkly.sdk.LDValue;
-import com.launchdarkly.sdk.LDValueType;
 import com.launchdarkly.sdk.android.FeatureFlagChangeListener;
 import com.launchdarkly.sdk.android.LDAllFlagsListener;
 import com.launchdarkly.sdk.android.LDClient;
@@ -31,16 +30,14 @@ import io.flutter.plugin.common.MethodChannel.MethodCallHandler;
 import io.flutter.plugin.common.MethodChannel.Result;
 import io.flutter.plugin.common.PluginRegistry.Registrar;
 
-import static com.launchdarkly.sdk.LDValueType.NULL;
-
 /** LaunchdarklyFlutterPlugin */
 public class LaunchdarklyFlutterPlugin implements FlutterPlugin, ActivityAware, MethodCallHandler {
 
   private MethodChannel channel;
   private Activity activity;
   private LDClient ldClient;
-  private Map<String, FeatureFlagChangeListener> listeners = new HashMap<>();
-  private Map<String, LDAllFlagsListener> allFlagsListeners = new HashMap<>();
+  private final Map<String, FeatureFlagChangeListener> listeners = new HashMap<>();
+  private final Map<String, LDAllFlagsListener> allFlagsListeners = new HashMap<>();
 
   public LaunchdarklyFlutterPlugin() {}
 
@@ -97,7 +94,7 @@ public class LaunchdarklyFlutterPlugin implements FlutterPlugin, ActivityAware, 
 
     if (call.hasArgument("userKey")) {
       String userKey = call.argument("userKey");
-      userBuilder = new LDUser.Builder(userKey);
+      userBuilder = new LDUser.Builder(userKey).anonymous(false);
     } else {
       userBuilder = new LDUser.Builder(UUID.randomUUID().toString()).anonymous(true);
     }
