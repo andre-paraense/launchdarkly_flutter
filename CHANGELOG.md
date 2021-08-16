@@ -1,3 +1,7 @@
+## 1.0.3
+
+* Bug fix for Android handling long type when parsing custom attributes (thanks to Alena Nemchinova @anemchinova !)
+
 ## 1.0.2
 
 * Bug fix for verifying all flags in Android
