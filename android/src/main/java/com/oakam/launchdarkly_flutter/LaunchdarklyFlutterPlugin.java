@@ -105,11 +105,13 @@ public class LaunchdarklyFlutterPlugin implements FlutterPlugin, ActivityAware, 
         final Object value = custom.get(key);
         if (value instanceof String) {
           userBuilder.custom(key, (String) value);
+        } else if (value instanceof Long) {
+            userBuilder.custom(key, (Long) value);
         } else if (value instanceof Integer) {
           userBuilder.custom(key, (Integer) value);
         } else if (value instanceof Double) {
           userBuilder.custom(key, (Double) value);
-       } else if (value instanceof Boolean) {
+        } else if (value instanceof Boolean) {
           userBuilder.custom(key, (Boolean) value);
         }
       }
