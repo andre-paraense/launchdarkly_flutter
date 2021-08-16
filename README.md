@@ -51,6 +51,11 @@ try {
 ```
 Be sure to use a mobile key from your [Environments](https://app.launchdarkly.com/settings#/environments) page. Never embed a server-side SDK key into a mobile application. Check LaunchDarkly's [documentation](https://docs.launchdarkly.com) for in-depth instructions on configuring and using LaunchDarkly.
 
+Optionally, you can choose to pass additional configuration parameters like:
+```dart
+await launchdarklyFlutter.init('YOUR_MOBILE_KEY', 'USER_ID', config: LaunchDarklyConfig(allAttributesPrivate: false,));
+```
+
 Give some time for the initialization process to fetch new flags values (or risk getting the defaults right away), and check them:
 
 ```dart
@@ -64,20 +69,45 @@ try {
 }
 ```
 
-### Custom attributes
+### Built-in user attributes and custom attributes
 
-You can pass custom attributes using `custom` argument in `init` method, e.g.:
+LaunchDarkly includes a set of built-in attributes for users, like `key`, `firstName`, `lastName`, `email`, etc. as well as allows to use custom attributes.
+For details, please refer to [Understanding user attributes](https://docs.launchdarkly.com/home/users/attributes#understanding-user-attributes).
+
+Both built-in and custom user attributes can be specified via a single `attributes` map. The plugin will recognize built-in and custom attributes and passes them to LaunchDarkly SDK properly. 
 
 ```dart
-final customAttrs = {
+final attrs = {
+  'email': 'example@example.com',
   'string': 'value',
   'boolean': true,
   'number': 10,
 };
-await launchdarklyFlutter.init(mobileKey, userId, custom: customAttrs);
+await launchdarklyFlutter.init(mobileKey, userId, custom: attrs);
 ```
 
 Your custom attributes map should have keys of type `String` and values of type `String | bool | number` (for deleting an attribute remove the key or set value to `null`).
+
+### Private attributes
+
+You may not want to send all attributes back to LaunchDarkly due to the security or data protection requirements of your organization.
+LaunchDarkly's private user attributes feature lets you choose which attributes get sent back to LaunchDarkly without sacrificing the ability to target user segments.
+
+- You can mark all attributes private globally in the `LaunchDarklyConfig` configuration object.
+- You can mark specific attributes private by name globally in the `LaunchDarklyConfig` configuration object.
+- You can mark specific attributes private by name for individual users when you call `identify` (see below).
+
+```dart
+final privateAttrs = {
+  'email': 'example@example.com',
+  'string': 'value',
+  'boolean': true,
+  'number': 10,
+};
+await launchdarklyFlutter.init(mobileKey, userId, privateAttributes: privateAttrs);
+```
+
+More about private user attributes can be found [here](https://docs.launchdarkly.com/home/users/attributes#creating-private-user-attributes).
 
 ### Changing the User Context
 
@@ -86,7 +116,7 @@ If your app is used by multiple users on a single device, you may want to change
 You can use the identify method to switch user contexts:
 
 ```dart
-await launchdarklyFlutter.identify(userId, custom: customAttrs);
+await launchdarklyFlutter.identify(userId, attributes: attributes, privateAttributes: privateAttributes);
 ```
 
 ## Not supported yet

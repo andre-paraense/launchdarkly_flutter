@@ -3,6 +3,102 @@ import 'dart:async';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 
+class LaunchDarklyConfig {
+  final bool allAttributesPrivate;
+  final Set<String> privateAttributes;
+
+  const LaunchDarklyConfig({
+    this.allAttributesPrivate = false,
+    this.privateAttributes = const {},
+  });
+
+  Map<String, dynamic> toMap() => {
+        'allAttributesPrivate': allAttributesPrivate,
+        'privateAttributes': privateAttributes.toList(),
+      };
+}
+
+/// A collection of attributes that can affect flag evaluation, usually corresponding to a user of your application.
+///
+/// If you want to avoid sending personal information back to LaunchDarkly but keep the ability to target, you can configure those attributes as private.
+/// Use `private`-prefixed counterparts for this purpose.
+class LaunchDarklyUser {
+  /// Sets the secondary key for a user. This affects feature flag targeting as follows:
+  /// if you have chosen to bucket users by a specific attribute,
+  /// he secondary key (if set) is used to further distinguish between users who are otherwise identical according to that attribute.
+  final String? secondaryKey;
+
+  /// Sets the IP for a user.
+  final String? ip;
+
+  /// Set the country for a user.
+  final String? country;
+
+  /// Sets the user's avatar.
+  final String? avatar;
+
+  /// Sets the user's e-mail address.
+  final String? email;
+
+  /// Sets the user's full name.
+  final String? name;
+
+  /// Sets the user's first name.
+  final String? firstName;
+
+  /// Sets the user's last name.
+  final String? lastName;
+
+  final List<String> privateAttributes;
+
+  LaunchDarklyUser({
+    String? secondaryKey,
+    String? privateSecondaryKey,
+    String? ip,
+    String? privateIp,
+    String? country,
+    String? privateCountry,
+    String? avatar,
+    String? privateAvatar,
+    String? email,
+    String? privateEmail,
+    String? name,
+    String? privateName,
+    String? firstName,
+    String? privateFirstName,
+    String? lastName,
+    String? privateLastName,
+  })  : this.secondaryKey = privateSecondaryKey ?? secondaryKey,
+        this.ip = privateIp ?? ip,
+        this.country = privateCountry ?? country,
+        this.avatar = privateAvatar ?? avatar,
+        this.email = privateEmail ?? email,
+        this.name = privateName ?? name,
+        this.firstName = privateFirstName ?? firstName,
+        this.lastName = privateLastName ?? lastName,
+        this.privateAttributes = [
+          if (privateSecondaryKey != null) 'secondaryKey',
+          if (privateIp != null) 'ip',
+          if (privateCountry != null) 'country',
+          if (privateAvatar != null) 'avatar',
+          if (privateEmail != null) 'email',
+          if (privateName != null) 'name',
+          if (privateFirstName != null) 'firstName',
+          if (privateLastName != null) 'lastName',
+        ];
+
+  Map<String, dynamic> toMap() => {
+        'secondaryKey': secondaryKey,
+        'ip': ip,
+        'country': country,
+        'avatar': avatar,
+        'email': email,
+        'name': name,
+        'firstName': firstName,
+        'lastName': lastName,
+      };
+}
+
 /// Client for accessing LaunchDarkly's Feature Flag system.
 class LaunchdarklyFlutter {
   Map<String, void Function(String?)>? flagListeners;
@@ -72,26 +168,46 @@ class LaunchdarklyFlutter {
   /// 5 seconds, it is returned anyway and can be used, but may not
   /// have fetched the most recent feature flag values.
   /// [mobileKey] is the mobile key from your Environments page in LaunchDarkly.
+  /// Additional configuration can be set via the optional [config].
   /// [userKey] is the user id considered by LaunchDarkly for feature flag targeting and rollouts.
   /// The userKey should also uniquely identify each user. You can use a primary key, an e-mail address,
   /// or a hash, as long as the same user always has the same key. We recommend using a hash if possible.
   /// You can also distinguish logged-in users from anonymous users in the SDK by leaving the userKey parameter null.
-  /// You can pass custom arguments in [custom] map.
+  /// You can pass built-in user attributes as [LaunchDarklyUser] in [user].
+  /// You can pass custom attributes and private custom attributes in [custom] and [privateCustom] maps accordingly.
+  /// Please note private attributes take precedence over non-private ones.
   Future<bool?> init(
     String? mobileKey,
     String? userKey, {
+    LaunchDarklyConfig? config,
+    LaunchDarklyUser? user,
     Map<String, dynamic>? custom,
+    Map<String, dynamic>? privateCustom,
   }) async {
     if (userKey == null) {
       return await _channel.invokeMethod('init', <String, dynamic>{
         'mobileKey': mobileKey,
-        'custom': custom,
+        'config': config?.toMap(),
+        'custom': {
+          if (custom != null) ...custom,
+          if (privateCustom != null) ...privateCustom,
+        },
+        'privateAttributes': privateCustom?.keys.toList(),
       });
     } else {
       return await _channel.invokeMethod('init', <String, dynamic>{
         'mobileKey': mobileKey,
         'userKey': userKey,
-        'custom': custom,
+        'user': user?.toMap(),
+        'config': config?.toMap(),
+        'custom': {
+          if (custom != null) ...custom,
+          if (privateCustom != null) ...privateCustom,
+        },
+        'privateAttributes': [
+          if (user != null) ...user.privateAttributes,
+          if (privateCustom != null) ...privateCustom.keys,
+        ],
       });
     }
   }
@@ -105,11 +221,26 @@ class LaunchdarklyFlutter {
   /// [userKey] is the user id considered by LaunchDarkly for feature flag
   /// targeting and rollouts (see [init]).
   ///
-  /// You can pass custom arguments in [custom] map.
-  Future<bool?> identify(String? userKey, {Map<String, dynamic>? custom}) =>
+  /// You can pass built-in user attributes as [LaunchDarklyUser] in [user].
+  /// You can pass custom attributes and private custom attributes in [custom] and [privateCustom] maps accordingly.
+  /// Please note private attributes take precedence over non-private ones.
+  Future<bool?> identify(
+    String? userKey, {
+    LaunchDarklyUser? user,
+    Map<String, dynamic>? custom,
+    Map<String, dynamic>? privateCustom,
+  }) =>
       _channel.invokeMethod('identify', <String, dynamic>{
         'userKey': userKey,
-        'custom': custom,
+        'user': user?.toMap(),
+        'custom': {
+          if (custom != null) ...custom,
+          if (privateCustom != null) ...privateCustom,
+        },
+        'privateAttributes': [
+          if (user != null) ...user.privateAttributes,
+          if (privateCustom != null) ...privateCustom.keys,
+        ],
       });
 
   /// Returns the flag value for the current user. Returns 'fallback' when one of the following occurs:
@@ -173,7 +304,8 @@ class LaunchdarklyFlutter {
       return false;
     }
 
-    if (!flagListeners!.containsKey(flagKey) || flagListeners![flagKey] == null) {
+    if (!flagListeners!.containsKey(flagKey) ||
+        flagListeners![flagKey] == null) {
       return false;
     }
 
