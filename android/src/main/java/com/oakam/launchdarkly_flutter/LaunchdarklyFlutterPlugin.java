@@ -323,8 +323,8 @@ public class LaunchdarklyFlutterPlugin implements FlutterPlugin, ActivityAware, 
 
   @VisibleForTesting
   void populateBuiltInAttributes(LDUser.Builder builder, Map<String, String> attributes, List<String> privateAttributeKeys) {
-    final String secondaryKey = attributes.get("secondaryKey");
-    if (privateAttributeKeys.contains("secondaryKey")) {
+    final String secondaryKey = attributes.get("secondary");
+    if (privateAttributeKeys.contains("secondary")) {
       builder.privateSecondary(secondaryKey);
     } else {
       builder.secondary(secondaryKey);

@@ -77,7 +77,7 @@ class LaunchDarklyUser {
         this.firstName = privateFirstName ?? firstName,
         this.lastName = privateLastName ?? lastName,
         this.privateAttributes = [
-          if (privateSecondaryKey != null) 'secondaryKey',
+          if (privateSecondaryKey != null) 'secondary',
           if (privateIp != null) 'ip',
           if (privateCountry != null) 'country',
           if (privateAvatar != null) 'avatar',
@@ -88,7 +88,7 @@ class LaunchDarklyUser {
         ];
 
   Map<String, dynamic> toMap() => {
-        'secondaryKey': secondaryKey,
+        'secondary': secondaryKey,
         'ip': ip,
         'country': country,
         'avatar': avatar,

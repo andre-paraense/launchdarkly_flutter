@@ -69,12 +69,22 @@ try {
 }
 ```
 
-### Built-in user attributes and custom attributes
+### Built-in user attributes
 
-LaunchDarkly includes a set of built-in attributes for users, like `key`, `firstName`, `lastName`, `email`, etc. as well as allows to use custom attributes.
+LaunchDarkly includes a set of built-in attributes for users, like `key`, `firstName`, `lastName`, `email`.
 For details, please refer to [Understanding user attributes](https://docs.launchdarkly.com/home/users/attributes#understanding-user-attributes).
 
-Both built-in and custom user attributes can be specified via a single `attributes` map. The plugin will recognize built-in and custom attributes and passes them to LaunchDarkly SDK properly. 
+The built-in user attributes can be set via parameter `user` of `LaunchDarklyUser` type:
+```dart
+final user = LaunchDarklyUser(
+  email: 'example@example.com',
+);
+await launchdarklyFlutter.init(mobileKey, userId, user: user);
+```
+
+### Custom attributes
+
+In addtion to the built-in user attributes, you can pass your own custom attributes.
 
 ```dart
 final attrs = {
@@ -98,13 +108,15 @@ LaunchDarkly's private user attributes feature lets you choose which attributes 
 - You can mark specific attributes private by name for individual users when you call `identify` (see below).
 
 ```dart
+final user = LaunchDarklyUser(
+  privateEmail: 'example@example.com',
+);
 final privateAttrs = {
-  'email': 'example@example.com',
   'string': 'value',
   'boolean': true,
   'number': 10,
 };
-await launchdarklyFlutter.init(mobileKey, userId, privateAttributes: privateAttrs);
+await launchdarklyFlutter.init(mobileKey, userId, user: user, privateCustom: privateAttrs);
 ```
 
 More about private user attributes can be found [here](https://docs.launchdarkly.com/home/users/attributes#creating-private-user-attributes).
@@ -116,7 +128,7 @@ If your app is used by multiple users on a single device, you may want to change
 You can use the identify method to switch user contexts:
 
 ```dart
-await launchdarklyFlutter.identify(userId, attributes: attributes, privateAttributes: privateAttributes);
+await launchdarklyFlutter.identify(userId, user: user, custom: custom, privateCustom: privateCustom);
 ```
 
 ## Not supported yet

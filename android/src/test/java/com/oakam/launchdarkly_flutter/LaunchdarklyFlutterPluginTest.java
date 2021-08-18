@@ -41,7 +41,7 @@ public class LaunchdarklyFlutterPluginTest {
         final LDUser.Builder builder = new LDUser.Builder(userId);
 
         final Map<String, String> attributes = new HashMap<>();
-        attributes.put("secondaryKey", secondaryKey);
+        attributes.put("secondary", secondaryKey);
         attributes.put("avatar", avatar);
         attributes.put("country", country);
         attributes.put("ip", ip);
@@ -81,7 +81,7 @@ public class LaunchdarklyFlutterPluginTest {
         final LDUser.Builder builder = new LDUser.Builder(userId);
 
         final Map<String, String> attributes = new HashMap<>();
-        attributes.put("secondaryKey", secondaryKey);
+        attributes.put("secondary", secondaryKey);
         attributes.put("avatar", avatar);
         attributes.put("country", country);
         attributes.put("ip", ip);
