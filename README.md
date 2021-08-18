@@ -88,7 +88,6 @@ In addtion to the built-in user attributes, you can pass your own custom attribu
 
 ```dart
 final attrs = {
-  'email': 'example@example.com',
   'string': 'value',
   'boolean': true,
   'number': 10,
@@ -105,7 +104,7 @@ LaunchDarkly's private user attributes feature lets you choose which attributes 
 
 - You can mark all attributes private globally in the `LaunchDarklyConfig` configuration object.
 - You can mark specific attributes private by name globally in the `LaunchDarklyConfig` configuration object.
-- You can mark specific attributes private by name for individual users when you call `identify` (see below).
+- You can mark specific attributes private by name for individual users when you call `init` / `identify` (see below).
 
 ```dart
 final user = LaunchDarklyUser(

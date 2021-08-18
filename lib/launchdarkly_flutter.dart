@@ -20,7 +20,7 @@ class LaunchDarklyConfig {
 
 /// A collection of attributes that can affect flag evaluation, usually corresponding to a user of your application.
 ///
-/// If you want to avoid sending personal information back to LaunchDarkly but keep the ability to target, you can configure those attributes as private.
+/// If you want to avoid sending personal information back to LaunchDarkly but keep the ability to target user segments, you can configure those attributes as private.
 /// Use `private`-prefixed counterparts for this purpose.
 class LaunchDarklyUser {
   /// Sets the secondary key for a user. This affects feature flag targeting as follows:
