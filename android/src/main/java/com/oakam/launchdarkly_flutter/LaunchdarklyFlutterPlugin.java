@@ -93,7 +93,8 @@ public class LaunchdarklyFlutterPlugin implements FlutterPlugin, ActivityAware, 
 
   }
 
-  private LDUser createUser(@NonNull MethodCall call) {
+  @VisibleForTesting
+  LDUser createUser(@NonNull MethodCall call) {
     LDUser.Builder userBuilder;
 
     if (call.hasArgument("userKey")) {
@@ -308,7 +309,7 @@ public class LaunchdarklyFlutterPlugin implements FlutterPlugin, ActivityAware, 
   }
 
   @VisibleForTesting
-  static void populateCustomAttributes(LDUser.Builder builder, Map<String, Object> attributes, List<String> privateAttributeKeys) {
+  void populateCustomAttributes(LDUser.Builder builder, Map<String, Object> attributes, List<String> privateAttributeKeys) {
     for (String key : attributes.keySet()) {
       final Object value = attributes.get(key);
       final boolean isPrivate = privateAttributeKeys.contains(key);
@@ -321,7 +322,7 @@ public class LaunchdarklyFlutterPlugin implements FlutterPlugin, ActivityAware, 
   }
 
   @VisibleForTesting
-  static void populateBuiltInAttributes(LDUser.Builder builder, Map<String, String> attributes, List<String> privateAttributeKeys) {
+  void populateBuiltInAttributes(LDUser.Builder builder, Map<String, String> attributes, List<String> privateAttributeKeys) {
     final String secondaryKey = attributes.get("secondaryKey");
     if (privateAttributeKeys.contains("secondaryKey")) {
       builder.privateSecondary(secondaryKey);
