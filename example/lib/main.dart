@@ -2,7 +2,9 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:launchdarkly_flutter/launchdarkly_config.dart';
 import 'package:launchdarkly_flutter/launchdarkly_flutter.dart';
+import 'package:launchdarkly_flutter/launchdarkly_user.dart';
 
 void main() => runApp(MyApp());
 
@@ -24,8 +26,10 @@ class _MyAppState extends State<MyApp> {
   String flagKey = 'FLAG_KEY';
 
   final ldUser = LaunchDarklyUser(
-    privateEmail: 'example@example.com',
-  );
+      email: 'example@example.com',
+      // Private attributes are omitted from being sent to LaunchDarkly but remain targetable.
+      privateFirstName: "USER_FIRST_NAME",
+      privateLastName: "USER_LAST_NAME");
 
   @override
   void initState() {

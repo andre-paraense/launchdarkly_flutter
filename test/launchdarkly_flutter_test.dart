@@ -3,7 +3,9 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:launchdarkly_flutter/launchdarkly_config.dart';
 import 'package:launchdarkly_flutter/launchdarkly_flutter.dart';
+import 'package:launchdarkly_flutter/launchdarkly_user.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
