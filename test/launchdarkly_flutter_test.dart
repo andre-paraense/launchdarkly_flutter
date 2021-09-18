@@ -1,8 +1,11 @@
 import 'dart:convert';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:launchdarkly_flutter/launchdarkly_config.dart';
 import 'package:launchdarkly_flutter/launchdarkly_flutter.dart';
+import 'package:launchdarkly_flutter/launchdarkly_user.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -16,7 +19,7 @@ void main() {
   final LaunchdarklyFlutter launchdarklyFlutter = LaunchdarklyFlutter(
       flagListeners: flagListeners, allFlagsListeners: allFlagsListeners);
 
-  setUpAll(() {
+  setUp(() {
     channel.setMockMethodCallHandler((MethodCall methodCall) async {
       if (methodCall.method == 'init') {
         Map<dynamic, dynamic> args = methodCall.arguments;
@@ -75,9 +78,6 @@ void main() {
   tearDown(() {
     flagListeners!.clear();
     allFlagsListeners!.clear();
-  });
-
-  tearDownAll(() {
     channel.setMockMethodCallHandler(null);
   });
 
@@ -93,17 +93,145 @@ void main() {
     expect(await launchdarklyFlutter.init('MOBILE_KEY', 'USER_ID'), true);
   });
 
+  test('init with config', () async {
+    final configExpected = LaunchDarklyConfig(
+      allAttributesPrivate: true,
+      privateAttributes: {'test'},
+    );
+    channel.setMockMethodCallHandler((MethodCall methodCall) async {
+      Map<dynamic, dynamic> args = methodCall.arguments;
+      final configActual = args['config'].cast<String, dynamic>();
+      if (configActual['allAttributesPrivate'] != true) {
+        return false;
+      }
+      final privateAttributes =
+          configActual['privateAttributes'].cast<String>();
+      if (!listEquals(['test'], privateAttributes)) {
+        return false;
+      }
+      return true;
+    });
+    final result = await launchdarklyFlutter.init(
+      'MOBILE_KEY',
+      'USER_ID',
+      config: configExpected,
+    );
+    expect(result, true);
+  });
+
   test('init with all arguments', () async {
-    final customValues = {
+    const userExpected = {
+      "secondary": 'testSecondaryKey',
+      "ip": 'testIp',
+      "country": 'testCountry',
+      "avatar": 'testAvatar',
+      "email": 'testEmail',
+      "name": 'testName',
+      "firstName": 'testFirstName',
+      "lastName": 'testLastName',
+    };
+    const customExpected = {
       'string': 'value',
       'boolean': true,
       'number': 10,
       'null': null,
     };
+    channel.setMockMethodCallHandler((MethodCall methodCall) async {
+      Map<dynamic, dynamic> args = methodCall.arguments;
+      final userActual = args['user'].cast<String, String>();
+      if (!mapEquals(userExpected, userActual)) {
+        return false;
+      }
+      final customActual = args['custom'].cast<String, dynamic>();
+      if (!mapEquals(customExpected, customActual)) {
+        return false;
+      }
+      final privateAttributes = args['privateAttributes']?.cast<String>();
+      if (privateAttributes != null && privateAttributes.isNotEmpty) {
+        return false;
+      }
+      return true;
+    });
     final result = await launchdarklyFlutter.init(
       'MOBILE_KEY',
       'USER_ID',
-      custom: customValues,
+      user: LaunchDarklyUser(
+        secondaryKey: 'testSecondaryKey',
+        ip: 'testIp',
+        country: 'testCountry',
+        avatar: 'testAvatar',
+        email: 'testEmail',
+        name: 'testName',
+        firstName: 'testFirstName',
+        lastName: 'testLastName',
+      ),
+      custom: customExpected,
+    );
+    expect(result, true);
+  });
+
+  test('init with all private arguments', () async {
+    final userExpected = {
+      "secondary": 'testSecondaryKey',
+      "ip": 'testIp',
+      "country": 'testCountry',
+      "avatar": 'testAvatar',
+      "email": 'testEmail',
+      "name": 'testName',
+      "firstName": 'testFirstName',
+      "lastName": 'testLastName',
+    };
+    const customExpected = {
+      'string': 'value',
+      'boolean': true,
+      'number': 10,
+      'null': null,
+    };
+    final expectedPrivateAttributes = [
+      'secondary',
+      'ip',
+      'country',
+      'avatar',
+      'email',
+      'name',
+      'firstName',
+      'lastName',
+      'string',
+      'null',
+      'boolean',
+      'number',
+    ]..sort();
+    channel.setMockMethodCallHandler((MethodCall methodCall) async {
+      Map<dynamic, dynamic> args = methodCall.arguments;
+      final userActual = args['user'].cast<String, String>();
+      if (!mapEquals(userExpected, userActual)) {
+        return false;
+      }
+      final customActual = args['custom'].cast<String, dynamic>();
+      if (!mapEquals(customExpected, customActual)) {
+        return false;
+      }
+      final privateAttributes = args['privateAttributes']?.cast<String>()
+        ..sort();
+      if (!listEquals(expectedPrivateAttributes, privateAttributes)) {
+        return false;
+      }
+      return true;
+    });
+    final result = await launchdarklyFlutter.init(
+      'MOBILE_KEY',
+      'USER_ID',
+      user: LaunchDarklyUser(
+        privateSecondaryKey: 'testSecondaryKey',
+        privateIp: 'testIp',
+        privateCountry: 'testCountry',
+        privateAvatar: 'testAvatar',
+        privateEmail: 'testEmail',
+        privateName: 'testName',
+        privateFirstName: 'testFirstName',
+        privateLastName: 'testLastName',
+      ),
+      privateCustom: customExpected,
     );
     expect(result, true);
   });
@@ -113,15 +241,116 @@ void main() {
   });
 
   test('identify with all arguments', () async {
-    final customValues = {
+    const userExpected = {
+      "secondary": 'testSecondaryKey',
+      "ip": 'testIp',
+      "country": 'testCountry',
+      "avatar": 'testAvatar',
+      "email": 'testEmail',
+      "name": 'testName',
+      "firstName": 'testFirstName',
+      "lastName": 'testLastName',
+    };
+    const customExpected = {
       'string': 'value',
       'boolean': true,
       'number': 10,
       'null': null,
     };
+    channel.setMockMethodCallHandler((MethodCall methodCall) async {
+      Map<dynamic, dynamic> args = methodCall.arguments;
+      final userActual = args['user'].cast<String, String>();
+      if (!mapEquals(userExpected, userActual)) {
+        return false;
+      }
+      final customActual = args['custom'].cast<String, dynamic>();
+      if (!mapEquals(customExpected, customActual)) {
+        return false;
+      }
+      final privateAttributes = args['privateAttributes']?.cast<String>();
+      if (privateAttributes != null && privateAttributes.isNotEmpty) {
+        return false;
+      }
+      return true;
+    });
     final result = await launchdarklyFlutter.identify(
       'USER_ID',
-      custom: customValues,
+      user: LaunchDarklyUser(
+        secondaryKey: 'testSecondaryKey',
+        ip: 'testIp',
+        country: 'testCountry',
+        avatar: 'testAvatar',
+        email: 'testEmail',
+        name: 'testName',
+        firstName: 'testFirstName',
+        lastName: 'testLastName',
+      ),
+      custom: customExpected,
+    );
+    expect(result, true);
+  });
+
+  test('identify with all private arguments', () async {
+    const userExpected = {
+      "secondary": 'testSecondaryKey',
+      "ip": 'testIp',
+      "country": 'testCountry',
+      "avatar": 'testAvatar',
+      "email": 'testEmail',
+      "name": 'testName',
+      "firstName": 'testFirstName',
+      "lastName": 'testLastName',
+    };
+    final customExpected = {
+      'string': 'value',
+      'boolean': true,
+      'number': 10,
+      'null': null,
+    };
+    final expectedPrivateAttrbiutes = [
+      'secondary',
+      'ip',
+      'country',
+      'avatar',
+      'email',
+      'name',
+      'firstName',
+      'lastName',
+      'string',
+      'null',
+      'boolean',
+      'number',
+    ]..sort();
+    channel.setMockMethodCallHandler((MethodCall methodCall) async {
+      Map<dynamic, dynamic> args = methodCall.arguments;
+      final userActual = args['user'].cast<String, String>();
+      if (!mapEquals(userExpected, userActual)) {
+        return false;
+      }
+      final customActual = args['custom'].cast<String, dynamic>();
+      if (!mapEquals(customExpected, customActual)) {
+        return false;
+      }
+      final privateAttributes = args['privateAttributes']?.cast<String>()
+        ..sort();
+      if (!listEquals(expectedPrivateAttrbiutes, privateAttributes)) {
+        return false;
+      }
+      return true;
+    });
+    final result = await launchdarklyFlutter.identify(
+      'USER_ID',
+      user: LaunchDarklyUser(
+        privateSecondaryKey: 'testSecondaryKey',
+        privateIp: 'testIp',
+        privateCountry: 'testCountry',
+        privateAvatar: 'testAvatar',
+        privateEmail: 'testEmail',
+        privateName: 'testName',
+        privateFirstName: 'testFirstName',
+        privateLastName: 'testLastName',
+      ),
+      privateCustom: customExpected,
     );
     expect(result, true);
   });

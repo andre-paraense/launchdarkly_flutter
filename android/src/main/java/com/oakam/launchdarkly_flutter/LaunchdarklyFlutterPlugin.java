@@ -6,15 +6,19 @@ import android.os.Looper;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.VisibleForTesting;
 
+import com.launchdarkly.sdk.LDUser;
 import com.launchdarkly.sdk.LDValue;
+import com.launchdarkly.sdk.UserAttribute;
 import com.launchdarkly.sdk.android.FeatureFlagChangeListener;
 import com.launchdarkly.sdk.android.LDAllFlagsListener;
 import com.launchdarkly.sdk.android.LDClient;
 import com.launchdarkly.sdk.android.LDConfig;
-import com.launchdarkly.sdk.LDUser;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -89,7 +93,8 @@ public class LaunchdarklyFlutterPlugin implements FlutterPlugin, ActivityAware, 
 
   }
 
-  private LDUser createUser(@NonNull MethodCall call) {
+  @VisibleForTesting
+  LDUser createUser(@NonNull MethodCall call) {
     LDUser.Builder userBuilder;
 
     if (call.hasArgument("userKey")) {
@@ -99,22 +104,19 @@ public class LaunchdarklyFlutterPlugin implements FlutterPlugin, ActivityAware, 
       userBuilder = new LDUser.Builder(UUID.randomUUID().toString()).anonymous(true);
     }
 
+    List<String> privateAttributes = call.argument("privateAttributes");
+    if (privateAttributes == null) {
+      privateAttributes = new ArrayList<>();
+    }
+
+    Map<String, String> userMap = call.argument("user");
+    if (userMap != null) {
+      populateBuiltInAttributes(userBuilder, userMap, privateAttributes);
+    }
+
     Map<String, Object> custom = call.argument("custom");
     if (custom != null) {
-      for (String key : custom.keySet()) {
-        final Object value = custom.get(key);
-        if (value instanceof String) {
-          userBuilder.custom(key, (String) value);
-        } else if (value instanceof Long) {
-            userBuilder.custom(key, (Long) value);
-        } else if (value instanceof Integer) {
-          userBuilder.custom(key, (Integer) value);
-        } else if (value instanceof Double) {
-          userBuilder.custom(key, (Double) value);
-        } else if (value instanceof Boolean) {
-          userBuilder.custom(key, (Boolean) value);
-        }
-      }
+      populateCustomAttributes(userBuilder, custom, privateAttributes);
     }
 
     return userBuilder.build();
@@ -132,9 +134,28 @@ public class LaunchdarklyFlutterPlugin implements FlutterPlugin, ActivityAware, 
         return;
       }
 
-      LDConfig ldConfig = new LDConfig.Builder()
-              .mobileKey(mobileKey)
-              .build();
+      LDConfig.Builder ldConfigBuilder = new LDConfig.Builder()
+              .mobileKey(mobileKey);
+
+      Map<String, Object> config = call.argument("config");
+      if (config != null) {
+        final Object allAttributesPrivate = config.get("allAttributesPrivate");
+        if (allAttributesPrivate instanceof Boolean && (Boolean) allAttributesPrivate) {
+          ldConfigBuilder.allAttributesPrivate();
+        }
+        final Object privateAttributes = config.get("privateAttributes");
+        if (privateAttributes instanceof List) {
+          final List<UserAttribute> userAttributes = new ArrayList<>();
+          for (Object privateAttribute : (List) privateAttributes) {
+            if (privateAttribute instanceof String) {
+              userAttributes.add(UserAttribute.forName((String) privateAttribute));
+            }
+          }
+          ldConfigBuilder.privateAttributes(userAttributes.toArray(new UserAttribute[0]));
+        }
+      }
+
+      LDConfig ldConfig = ldConfigBuilder.build();
 
       ldClient = LDClient.init(activity.getApplication(), ldConfig, createUser(call), 5);
 
@@ -257,5 +278,98 @@ public class LaunchdarklyFlutterPlugin implements FlutterPlugin, ActivityAware, 
   private void setupChannel(BinaryMessenger messenger) {
     channel = new MethodChannel(messenger, "launchdarkly_flutter");
     channel.setMethodCallHandler(this);
+  }
+
+  private static void populatePrivateCustomAttribute(LDUser.Builder builder, String key, Object value) {
+    if (value instanceof String) {
+      builder.privateCustom(key, (String) value);
+    } else if (value instanceof Long) {
+      builder.privateCustom(key, (Long) value);
+    } else if (value instanceof Integer) {
+      builder.privateCustom(key, (Integer) value);
+    } else if (value instanceof Double) {
+      builder.privateCustom(key, (Double) value);
+    } else if (value instanceof Boolean) {
+      builder.privateCustom(key, (Boolean) value);
+    }
+  }
+
+  private static void populateCustomAttribute(LDUser.Builder builder, String key, Object value) {
+    if (value instanceof String) {
+      builder.custom(key, (String) value);
+    } else if (value instanceof Long) {
+      builder.custom(key, (Long) value);
+    } else if (value instanceof Integer) {
+      builder.custom(key, (Integer) value);
+    } else if (value instanceof Double) {
+      builder.custom(key, (Double) value);
+    } else if (value instanceof Boolean) {
+      builder.custom(key, (Boolean) value);
+    }
+  }
+
+  @VisibleForTesting
+  void populateCustomAttributes(LDUser.Builder builder, Map<String, Object> attributes, List<String> privateAttributeKeys) {
+    for (String key : attributes.keySet()) {
+      final Object value = attributes.get(key);
+      final boolean isPrivate = privateAttributeKeys.contains(key);
+      if (isPrivate) {
+        populatePrivateCustomAttribute(builder, key, value);
+      } else {
+        populateCustomAttribute(builder, key, value);
+      }
+    }
+  }
+
+  @VisibleForTesting
+  void populateBuiltInAttributes(LDUser.Builder builder, Map<String, String> attributes, List<String> privateAttributeKeys) {
+    final String secondaryKey = attributes.get("secondary");
+    if (privateAttributeKeys.contains("secondary")) {
+      builder.privateSecondary(secondaryKey);
+    } else {
+      builder.secondary(secondaryKey);
+    }
+    final String ip = attributes.get("ip");
+    if (privateAttributeKeys.contains("ip")) {
+      builder.privateIp(ip);
+    } else {
+      builder.ip(ip);
+    }
+    final String country = attributes.get("country");
+    if (privateAttributeKeys.contains("country")) {
+      builder.privateCountry(country);
+    } else {
+      builder.country(country);
+    }
+    final String avatar = attributes.get("avatar");
+    if (privateAttributeKeys.contains("avatar")) {
+      builder.privateAvatar(avatar);
+    } else {
+      builder.avatar(avatar);
+    }
+    final String name = attributes.get("name");
+    if (privateAttributeKeys.contains("name")) {
+      builder.privateName(name);
+    } else {
+      builder.name(name);
+    }
+    final String email = attributes.get("email");
+    if (privateAttributeKeys.contains("email")) {
+      builder.privateEmail(email);
+    } else {
+      builder.email(email);
+    }
+    final String firstName = attributes.get("firstName");
+    if (privateAttributeKeys.contains("firstName")) {
+      builder.privateFirstName(firstName);
+    } else {
+      builder.firstName(firstName);
+    }
+    final String lastName = attributes.get("lastName");
+    if (privateAttributeKeys.contains("lastName")) {
+      builder.privateLastName(lastName);
+    } else {
+      builder.lastName(lastName);
+    }
   }
 }

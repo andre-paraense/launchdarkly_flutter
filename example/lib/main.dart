@@ -2,7 +2,9 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:launchdarkly_flutter/launchdarkly_config.dart';
 import 'package:launchdarkly_flutter/launchdarkly_flutter.dart';
+import 'package:launchdarkly_flutter/launchdarkly_user.dart';
 
 void main() => runApp(MyApp());
 
@@ -23,6 +25,12 @@ class _MyAppState extends State<MyApp> {
   String userId = 'USER_ID';
   String flagKey = 'FLAG_KEY';
 
+  final ldUser = LaunchDarklyUser(
+      email: 'example@example.com',
+      // Private attributes are omitted from being sent to LaunchDarkly but remain targetable.
+      privateFirstName: "USER_FIRST_NAME",
+      privateLastName: "USER_LAST_NAME");
+
   @override
   void initState() {
     super.initState();
@@ -36,7 +44,16 @@ class _MyAppState extends State<MyApp> {
     launchdarklyFlutter = LaunchdarklyFlutter();
 
     try {
-      await launchdarklyFlutter.init(mobileKey, userId, custom: _customAttrs);
+      await launchdarklyFlutter.init(
+        mobileKey,
+        userId,
+        config: LaunchDarklyConfig(
+          allAttributesPrivate: false,
+          privateAttributes: {'email'},
+        ),
+        custom: attrs,
+        privateCustom: privateAttrs,
+      );
     } on PlatformException {}
   }
 
@@ -44,7 +61,8 @@ class _MyAppState extends State<MyApp> {
     final isLoggedIn = !_isLoggedIn;
     await launchdarklyFlutter.identify(
       isLoggedIn ? userId : null,
-      custom: _customAttrs,
+      custom: attrs,
+      privateCustom: privateAttrs,
     );
     setState(() => _isLoggedIn = isLoggedIn);
     _verifyFlag(flagKey);
@@ -200,8 +218,14 @@ class _MyAppState extends State<MyApp> {
   }
 }
 
-const _customAttrs = {
+const attrs = {
   'string': 'value',
   'boolean': true,
   'number': 10,
+};
+
+const privateAttrs = {
+  'privateString': 'value',
+  'privateBoolean': true,
+  'privateNumber': 10,
 };

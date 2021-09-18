@@ -2,6 +2,10 @@ import 'dart:async';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
+import 'package:launchdarkly_flutter/launchdarkly_config.dart';
+import 'package:launchdarkly_flutter/launchdarkly_user.dart';
+
+part 'launch_darkly_extensions.dart';
 
 /// Client for accessing LaunchDarkly's Feature Flag system.
 class LaunchdarklyFlutter {
@@ -72,26 +76,47 @@ class LaunchdarklyFlutter {
   /// 5 seconds, it is returned anyway and can be used, but may not
   /// have fetched the most recent feature flag values.
   /// [mobileKey] is the mobile key from your Environments page in LaunchDarkly.
+  /// Additional configuration can be set via the optional [config].
   /// [userKey] is the user id considered by LaunchDarkly for feature flag targeting and rollouts.
   /// The userKey should also uniquely identify each user. You can use a primary key, an e-mail address,
   /// or a hash, as long as the same user always has the same key. We recommend using a hash if possible.
   /// You can also distinguish logged-in users from anonymous users in the SDK by leaving the userKey parameter null.
-  /// You can pass custom arguments in [custom] map.
+  /// You can pass built-in user attributes as [LaunchDarklyUser] in [user].
+  /// You can pass custom attributes and private custom attributes in [custom] and [privateCustom] maps accordingly.
+  /// Please note private attributes take precedence over non-private ones.
   Future<bool?> init(
     String? mobileKey,
     String? userKey, {
+    LaunchDarklyConfig? config,
+    LaunchDarklyUser? user,
     Map<String, dynamic>? custom,
+    Map<String, dynamic>? privateCustom,
   }) async {
     if (userKey == null) {
       return await _channel.invokeMethod('init', <String, dynamic>{
         'mobileKey': mobileKey,
-        'custom': custom,
+        'config': config?.toMap(),
+        'user': user?.toMap(),
+        'custom': {
+          if (custom != null) ...custom,
+          if (privateCustom != null) ...privateCustom,
+        },
+        'privateAttributes': privateCustom?.keys.toList(),
       });
     } else {
       return await _channel.invokeMethod('init', <String, dynamic>{
         'mobileKey': mobileKey,
         'userKey': userKey,
-        'custom': custom,
+        'user': user?.toMap(),
+        'config': config?.toMap(),
+        'custom': {
+          if (custom != null) ...custom,
+          if (privateCustom != null) ...privateCustom,
+        },
+        'privateAttributes': [
+          if (user != null) ...user.privateAttributes,
+          if (privateCustom != null) ...privateCustom.keys,
+        ],
       });
     }
   }
@@ -105,11 +130,26 @@ class LaunchdarklyFlutter {
   /// [userKey] is the user id considered by LaunchDarkly for feature flag
   /// targeting and rollouts (see [init]).
   ///
-  /// You can pass custom arguments in [custom] map.
-  Future<bool?> identify(String? userKey, {Map<String, dynamic>? custom}) =>
+  /// You can pass built-in user attributes as [LaunchDarklyUser] in [user].
+  /// You can pass custom attributes and private custom attributes in [custom] and [privateCustom] maps accordingly.
+  /// Please note private attributes take precedence over non-private ones.
+  Future<bool?> identify(
+    String? userKey, {
+    LaunchDarklyUser? user,
+    Map<String, dynamic>? custom,
+    Map<String, dynamic>? privateCustom,
+  }) =>
       _channel.invokeMethod('identify', <String, dynamic>{
         'userKey': userKey,
-        'custom': custom,
+        'user': user?.toMap(),
+        'custom': {
+          if (custom != null) ...custom,
+          if (privateCustom != null) ...privateCustom,
+        },
+        'privateAttributes': [
+          if (user != null) ...user.privateAttributes,
+          if (privateCustom != null) ...privateCustom.keys,
+        ],
       });
 
   /// Returns the flag value for the current user. Returns 'fallback' when one of the following occurs:
@@ -173,7 +213,8 @@ class LaunchdarklyFlutter {
       return false;
     }
 
-    if (!flagListeners!.containsKey(flagKey) || flagListeners![flagKey] == null) {
+    if (!flagListeners!.containsKey(flagKey) ||
+        flagListeners![flagKey] == null) {
       return false;
     }
 

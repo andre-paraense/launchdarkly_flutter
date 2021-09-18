@@ -29,8 +29,19 @@ import LaunchDarkly
       isAnonymous = true
     }
     
+    let userAttributes = arguments["user"] as? [String:Any] ?? [:]
+    
     var user = LDUser(key: userKey)
     user.isAnonymous = isAnonymous
+    user.secondary = userAttributes["secondary"] as? String
+    user.country = userAttributes["country"] as? String
+    user.ipAddress = userAttributes["ip"] as? String
+    user.avatar = userAttributes["avatar"] as? String
+    user.name = userAttributes["name"] as? String
+    user.firstName = userAttributes["firstName"] as? String
+    user.lastName = userAttributes["lastName"] as? String
+    user.email = userAttributes["email"] as? String
+    user.privateAttributes = arguments["privateAttributes"] as? [String]
     user.custom = arguments["custom"] as? [String: Any]
     
     return user
@@ -48,7 +59,11 @@ import LaunchDarkly
             return
         }
         
-        let config = LDConfig(mobileKey: mobileKey ?? "")
+        let configArgs = arguments["config"] as? [String: Any] ?? [:]
+        
+        var config = LDConfig(mobileKey: mobileKey ?? "")
+        config.allUserAttributesPrivate = configArgs["allAttributesPrivate"] as? Bool ?? false
+        config.privateUserAttributes = configArgs["privateAttributes"] as? [String]
         
         LDClient.start(config: config, user: createUser(arguments: arguments), startWaitSeconds: 5) { timedOut in
             result(true)
