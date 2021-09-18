@@ -1,3 +1,7 @@
+## 1.1.0
+
+* Private User Attributes feature (thanks to Alena Nemchinova @anemchinova !)
+
 ## 1.0.3
 
 * Bug fix for Android handling long type when parsing custom attributes (thanks to Alena Nemchinova @anemchinova !)
